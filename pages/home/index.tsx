@@ -1,63 +1,119 @@
-import Head from "next/head";
-import Image from "next/image";
-import styles from "@/pages/index.module.css";
+import Head from 'next/head';
+import styles from '@/pages/index.module.css';
+import { useState } from 'react';
+import { WordleFilter, WordleState } from 'app/solver/filter';
+// import Image from 'next/image';
+import candidates from 'public/words.json';
 
 export default function Home() {
+  const [wordleState, setWordleState] = useState<WordleState>({
+    banned: [],
+    hints: [],
+    known: [],
+  })
+
+  const wordleFilter = new WordleFilter(candidates)
+  const response = wordleFilter.filter(wordleState)
+
+  const hintInputs = []
+  for (let i = 0; i < 5; ++i) {
+    hintInputs.push(
+      <input type='text' key={i}
+        className={styles.wordleLetters}
+        value={wordleState.hints[i]}
+        onChange={(e) => {
+          const { hints } = wordleState
+          hints[i] = e.target.value
+          setWordleState({
+            ...wordleState,
+            hints,
+          })
+        }
+        }
+      />
+    )
+  }
+
+  const knownInputs = []
+  for (let i = 0; i < 5; ++i) {
+    knownInputs.push(
+      <input type='text' key={i}
+        className={styles.wordleLetters}
+        value={wordleState.known[i]}
+        onChange={(e) => {
+          const { known } = wordleState
+          known[i] = e.target.value
+          setWordleState({
+            ...wordleState,
+            known,
+          })
+        }}
+      />
+    )
+  }
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>Wordle Helper</title>
+        {/* <link rel='icon' href='/favicon.ico' /> */}
       </Head>
 
       <main>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+        <div>
+          <div>
+            Banned Letters:
+          </div>
+          <input type='text' id='banned'
+            className={styles.wordleLetters}
+            value={wordleState.banned.join("")}
+            onChange={(e) => setWordleState({
+              ...wordleState,
+              banned: e.target.value.toUpperCase().split("")
+            })}
+          />
+        </div>
 
-        <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
-        </p>
+        <div>
+          Hints:
+          <div>
+            {hintInputs}
+          </div>
+        </div>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        <div>
+          Known:
+          <div>
+            {knownInputs}
+          </div>
+        </div>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a href="https://vercel.com/new" className={styles.card}>
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div>
+          Possible Solutions ({response.candidates.length}):
+          <div>
+            {response.candidates.map((candidate, i) =>
+            (<div key={i}>
+              {candidate.w}
+              {candidate.d && `Used on ${candidate.d}`}
+            </div>)
+            )}
+          </div>
         </div>
       </main>
 
       <footer className={styles.footer}>
+        {/*
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          target='_blank'
+          rel='noopener noreferrer'
         >
-          Powered by{" "}
+          Powered by{' '}
           <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
           </span>
         </a>
+        */}
       </footer>
     </div>
   );
