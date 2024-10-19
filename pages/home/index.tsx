@@ -8,8 +8,8 @@ import candidates from 'public/words.json';
 export default function Home() {
   const [wordleState, setWordleState] = useState<WordleState>({
     banned: [],
-    hints: [],
-    known: [],
+    hints: ["", "", "", "", ""],
+    known: ["", "", "", "", ""],
   })
 
   const wordleFilter = new WordleFilter(candidates)
@@ -23,7 +23,7 @@ export default function Home() {
         value={wordleState.hints[i]}
         onChange={(e) => {
           const { hints } = wordleState
-          hints[i] = e.target.value
+          hints[i] = e.target.value.toUpperCase()
           setWordleState({
             ...wordleState,
             hints,
@@ -42,7 +42,7 @@ export default function Home() {
         value={wordleState.known[i]}
         onChange={(e) => {
           const { known } = wordleState
-          known[i] = e.target.value
+          known[i] = e.target.value.toUpperCase()
           setWordleState({
             ...wordleState,
             known,
