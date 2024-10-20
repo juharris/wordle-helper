@@ -2,7 +2,7 @@ import Head from 'next/head';
 import styles from '@/pages/index.module.css';
 import { useState } from 'react';
 import { WordleFilter, WordleState } from 'app/solver/filter';
-import candidates from 'public/words.json';
+import validWords from 'public/words.json';
 
 export default function Home() {
   const [wordleState, setWordleState] = useState<WordleState>({
@@ -11,7 +11,7 @@ export default function Home() {
     known: ["", "", "", "", ""],
   })
 
-  const wordleFilter = new WordleFilter(candidates)
+  const wordleFilter = new WordleFilter(validWords)
   const response = wordleFilter.filter(wordleState)
 
   const hintInputs = []
