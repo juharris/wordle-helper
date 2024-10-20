@@ -2,7 +2,6 @@ import Head from 'next/head';
 import styles from '@/pages/index.module.css';
 import { useState } from 'react';
 import { WordleFilter, WordleState } from 'app/solver/filter';
-// import Image from 'next/image';
 import candidates from 'public/words.json';
 
 export default function Home() {

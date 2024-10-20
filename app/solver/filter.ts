@@ -71,7 +71,6 @@ export class WordleFilter {
         state.hints.forEach((letters, position) => {
             const opt = options[position]
             for (const letter of letters) {
-                console.log(`hint letter: ${letter}`)
                 const letterIndex = opt.indexOf(letter)
                 if (letterIndex >= 0) {
                     options[position] = opt.substring(0, letterIndex) + opt.substring(letterIndex + 1, opt.length)
