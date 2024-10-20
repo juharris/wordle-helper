@@ -1,4 +1,4 @@
-import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from './filter'
+import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from '../../app/solver/filter'
 import fs from 'fs'
 
 describe("WordleFilter", () => {
