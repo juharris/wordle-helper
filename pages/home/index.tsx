@@ -55,10 +55,20 @@ export default function Home() {
     <div className={styles.container}>
       <Head>
         <title>Wordle Helper</title>
-        {/* <link rel='icon' href='/favicon.ico' /> */}
+        {/* TODO Add new favicon.
+        <link rel='icon' href='/favicon.ico' />
+        */}
       </Head>
 
       <main>
+        <h1 className={styles.title}>
+          Wordle Helper
+        </h1>
+
+        <p className={styles.description}>
+          Fill in the information below to get possible solutions.
+        </p>
+
         <div>
           <div>
             Banned Letters:
