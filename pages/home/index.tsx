@@ -18,7 +18,7 @@ export default function Home() {
   for (let i = 0; i < 5; ++i) {
     hintInputs.push(
       <input type='text' key={i}
-        className={styles.wordleLetters}
+        className={`${styles.wordleLetters} ${styles.oneFifth}`}
         value={wordleState.hints[i]}
         onChange={(e) => {
           const { hints } = wordleState
@@ -37,7 +37,7 @@ export default function Home() {
   for (let i = 0; i < 5; ++i) {
     knownInputs.push(
       <input type='text' key={i}
-        className={styles.wordleLetters}
+        className={`${styles.wordleLetters} ${styles.oneFifth}`}
         value={wordleState.known[i]}
         onChange={(e) => {
           const { known } = wordleState
@@ -69,12 +69,12 @@ export default function Home() {
           Fill in the information below to get possible solutions.
         </p>
 
-        <div>
+        <div className={styles.inputsSection}>
           <div>
             Banned Letters:
           </div>
-          <input type='text' id='banned'
-            className={styles.wordleLetters}
+          <input type='text'
+            className={`${styles.wordleLetters} ${styles.banned}`}
             value={wordleState.banned.join("")}
             onChange={(e) => setWordleState({
               ...wordleState,
@@ -83,16 +83,16 @@ export default function Home() {
           />
         </div>
 
-        <div>
+        <div className={styles.inputsSection}>
           Hints:
-          <div>
+          <div className={styles.grid}>
             {hintInputs}
           </div>
         </div>
 
-        <div>
+        <div className={styles.inputsSection}>
           Known:
-          <div>
+          <div className={styles.grid}>
             {knownInputs}
           </div>
         </div>
@@ -100,11 +100,10 @@ export default function Home() {
         <div>
           Possible Solutions ({response.candidates.length}):
           <div>
-            {response.candidates.map((candidate, i) =>
-            (<div key={i}>
+            {response.candidates.map((candidate) =>
+            (<div key={candidate.w}>
               {candidate.w}
               {candidate.d &&
-                // Add hover with the date.
                 <span title={candidate.d}>📅</span>
               }
             </div>)

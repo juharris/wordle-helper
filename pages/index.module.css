@@ -21,7 +21,6 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  font-size: 4rem;
 }
 
 .title,
@@ -30,8 +29,8 @@
 }
 
 .description {
-  line-height: 1.5;
-  font-size: 1.5rem;
+  line-height: 1.3;
+  font-size: 1.3rem;
 }
 
 .grid {
@@ -41,7 +40,8 @@
   flex-wrap: wrap;
 
   max-width: 1200px;
-  margin-top: 3rem;
+  margin-top: 0.5rem;
+  gap: 1em;
 }
 
 .card {
@@ -81,14 +81,27 @@
   margin-left: 0.5rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 300px) {
   .grid {
     width: 100%;
     flex-direction: column;
   }
 }
 
+.inputsSection {
+  margin-top: 1em;
+}
+
 input.wordleLetters {
   /* Force uppercase letters. */
   text-transform: uppercase;
+}
+
+input.banned {
+  width: 90%;
+}
+
+input.oneFifth {
+  /* Leave some space for the gap. */
+  width: 16%;
 }
