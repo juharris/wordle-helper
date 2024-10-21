@@ -25,7 +25,7 @@ export interface WordleSolutionCandidate {
     /** The word. */
     w: string
     /** The date when the word was used. */
-    d?: Date
+    d?: string
     /** Sources */
     s: string[]
 }
@@ -87,6 +87,13 @@ export class WordleFilter {
     }
 
     filter(state: WordleState): WordleFilterResponse {
+        // Check for the empty case to avoid filtering all words.
+        if (state.banned.every(b => !b) && state.hints.every(h => !h) && state.known.every(k => !k)) {
+            return {
+                candidates: this.validWords.words,
+            }
+        }
+
         const pattern = this.buildPattern(state)
         const candidates: WordleSolutionCandidate[] = []
         for (const candidate of this.validWords.words) {
@@ -107,6 +114,19 @@ export class WordleFilter {
 
             candidates.push(candidate)
         }
+
+        // Sort by date, then by word.
+        candidates.sort((c1, c2) => {
+            if (c1.d && c2.d) {
+                // All dates should be unique, so we don't need to compare the words.
+                return c1.w.localeCompare(c2.w)
+            } else if (c1.d) {
+                return 1
+            } else if (c2.d) {
+                return -1
+            }
+            return c1.w.localeCompare(c2.w)
+        })
 
         return {
             candidates,
