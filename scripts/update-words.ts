@@ -36,10 +36,10 @@ async function getUsedWords(): Promise<Map<string, string>> {
 
 
 
-function saveWords() {
+function saveWords(words: typeof validWords) {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
-    fs.writeFileSync(path, JSON.stringify(validWords))
+    fs.writeFileSync(path, JSON.stringify(words))
     console.log(`Words saved to '${path}'.`)
 }
 
@@ -51,7 +51,7 @@ async function addUsedDates() {
             (word as any).d = date
         }
     }
-    saveWords()
+    saveWords(validWords)
 }
 
 async function main() {
