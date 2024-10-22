@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { WordleFilter, WordleState } from 'app/solver/filter';
 import validWords from 'public/words.json';
 
-
 export default function Home() {
   const [wordleState, setWordleState] = useState<WordleState>({
     banned: [],
