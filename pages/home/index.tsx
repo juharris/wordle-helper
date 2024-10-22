@@ -11,6 +11,7 @@ export default function Home() {
     known: ["", "", "", "", ""],
   })
 
+  // TODO useMemo?
   const wordleFilter = new WordleFilter(validWords)
   const response = wordleFilter.filter(wordleState)
 
@@ -18,7 +19,8 @@ export default function Home() {
   for (let i = 0; i < 5; ++i) {
     hintInputs.push(
       <input type='text' key={i}
-        className={`${styles.wordleLetters} ${styles.oneFifth}`}
+        aria-label={`Hint for letter ${i + 1}`}
+        className={`${styles.wordleLetters} ${styles.hints} ${styles.oneFifth}`}
         value={wordleState.hints[i]}
         onChange={(e) => {
           const { hints } = wordleState
@@ -37,7 +39,8 @@ export default function Home() {
   for (let i = 0; i < 5; ++i) {
     knownInputs.push(
       <input type='text' key={i}
-        className={`${styles.wordleLetters} ${styles.oneFifth}`}
+        aria-label={`Answer for letter ${i + 1}`}
+        className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
         value={wordleState.known[i]}
         onChange={(e) => {
           const { known } = wordleState
@@ -71,27 +74,33 @@ export default function Home() {
 
         <div className={styles.inputsSection}>
           <div>
-            Banned Letters:
+            Letters not in the word:
           </div>
+          {/* TODO Don't let browser suggest previous inputs. */}
           <input type='text'
+            aria-label="banned letters"
             className={`${styles.wordleLetters} ${styles.banned}`}
             value={wordleState.banned.join("")}
-            onChange={(e) => setWordleState({
-              ...wordleState,
-              banned: e.target.value.toUpperCase().split("")
-            })}
+            onChange={(e) => {
+              const { value } = e.target
+              const banned = value.toUpperCase().split("")
+              setWordleState({
+                ...wordleState,
+                banned,
+              })
+            }}
           />
         </div>
 
         <div className={styles.inputsSection}>
-          Hints:
+          Letters in the word, but not at these places:
           <div className={styles.grid}>
             {hintInputs}
           </div>
         </div>
 
         <div className={styles.inputsSection}>
-          Known:
+          Letters in the word in the right place:
           <div className={styles.grid}>
             {knownInputs}
           </div>

@@ -95,10 +95,25 @@
 input.wordleLetters {
   /* Force uppercase letters. */
   text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.05em;
 }
 
+/* TODO Look up proper colors. */
 input.banned {
   width: 90%;
+  color: #f2f2f2;
+  background-color: darkgray;
+}
+
+input.hints {
+  color: #f2f2f2;
+  background-color: olive;
+}
+
+input.known {
+  color: #f2f2f2;
+  background-color: green;
 }
 
 input.oneFifth {
