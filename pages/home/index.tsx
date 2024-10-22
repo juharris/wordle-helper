@@ -13,14 +13,7 @@ export default function Home() {
 
   // TODO useMemo?
   const wordleFilter = new WordleFilter(validWords)
-  if (performance) {
-    performance.mark("WordleFilter.filter")
-  }
   const response = wordleFilter.filter(wordleState)
-  if (performance) {
-    const m = performance.measure("WordleFilter.filter")
-    console.debug(m)
-  }
 
   const hintInputs = []
   for (let i = 0; i < 5; ++i) {
