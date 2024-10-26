@@ -96,27 +96,40 @@ input.wordleLetters {
   /* Force uppercase letters. */
   text-transform: uppercase;
   font-weight: bold;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.05rem;
+  border-width: 0;
+  padding: 0.4rem;
+  color: #fff;
 }
 
-/* TODO Look up proper colors. */
 input.banned {
   width: 90%;
-  color: #f2f2f2;
-  background-color: darkgray;
+  margin-top: 0.5rem;
+  background-color: #787c7e;
 }
 
 input.hints {
-  color: #f2f2f2;
-  background-color: olive;
+  background-color: #c9b458;
 }
 
 input.known {
-  color: #f2f2f2;
-  background-color: green;
+  background-color: #6aaa64;
 }
 
 input.oneFifth {
   /* Leave some space for the gap. */
   width: 16%;
+}
+
+.possibleSolutions {
+  margin-top: 1em;
+}
+
+.dateDetails {
+  display: inline;
+  margin-left: 0.2em;
+}
+
+.dateSummary {
+  display: inline;
 }

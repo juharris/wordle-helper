@@ -16,15 +16,28 @@ async function getUsedWords(): Promise<Map<string, string>> {
         if (!chronlist) {
             throw new Error(`Could not find element with ID 'chronlist'.`)
         }
+
+        // Skip recent entries from the last 3 days to avoid revealing spoilers.
+        const thresholdDate = new Date()
+        thresholdDate.setDate(thresholdDate.getDate() - 3)
+
         for (const child of chronlist.childNodes) {
             if (child.nodeType !== NodeType.TEXT_NODE) {
                 continue
             }
             const entry = child.textContent.trim()
-            const [word, num, mdy] = entry.split(' ')
+            const [word, _num, mdy] = entry.split(' ')
             const [month, day, year] = mdy.split('/')
-            const date = `${2000 + parseInt(year)}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-            result.set(word, date)
+            const yearInt = 2000 + parseInt(year)
+            const monthInt = parseInt(month) - 1
+            const dayInt = parseInt(day)
+            const date = new Date(yearInt, monthInt, dayInt)
+            if (date > thresholdDate) {
+                continue
+            }
+            const dateString = `${yearInt}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+
+            result.set(word, dateString)
         }
     } catch (error) {
         console.error(`Error fetching or parsing HTML from '${url}'.`, error);

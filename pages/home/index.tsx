@@ -44,7 +44,12 @@ export default function Home() {
         value={wordleState.known[i]}
         onChange={(e) => {
           const { known } = wordleState
-          known[i] = e.target.value.toUpperCase()
+          let { value } = e.target
+          if (value.length > 1) {
+            // Get just the last letter.
+            value = value.substring(value.length - 1)
+          }
+          known[i] = value.toUpperCase()
           setWordleState({
             ...wordleState,
             known,
@@ -67,10 +72,6 @@ export default function Home() {
         <h1 className={styles.title}>
           Wordle Helper
         </h1>
-
-        <p className={styles.description}>
-          Fill in the information below to get possible solutions.
-        </p>
 
         <div className={styles.inputsSection}>
           <div>
@@ -106,22 +107,40 @@ export default function Home() {
           </div>
         </div>
 
-        <div>
+        <div className={styles.possibleSolutions}>
           Possible Solutions ({response.candidates.length}):
           <div>
-            {response.candidates.map((candidate) =>
-            (<div key={candidate.w}>
-              {candidate.w}
-              {candidate.d &&
-                <span title={candidate.d}>📅</span>
+            {response.candidates.map((candidate) => {
+              let date: string | undefined = undefined
+              if (candidate.d) {
+                const [year, month, day] = candidate.d.split('-')
+                const yearInt = parseInt(year, 10)
+                const monthInt = parseInt(month, 10) - 1
+                const dayInt = parseInt(day, 10)
+                date = new Date(yearInt, monthInt, dayInt).toDateString()
               }
-            </div>)
+              return (<div key={candidate.w}>
+                {candidate.w}
+                {candidate.d && <details className={styles.dateDetails} title={date}>
+                  <summary className={styles.dateSummary}>📅</summary>
+                  {date}
+                </details>}
+              </div>)
+            }
             )}
           </div>
         </div>
       </main>
 
       <footer className={styles.footer}>
+        {/* Using `&nbsp;` is hacky, but the CSS in this footer is weird and `{" "}` didn't show. */}
+        Source code:&nbsp;
+        <a href='https://github.com/juharris/wordle-helper'
+          target='_blank'
+          rel='noopener noreferrer'
+          >
+          https://github.com/juharris/wordle-helper
+        </a>
       </footer>
     </div>
   );
