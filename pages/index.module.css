@@ -102,6 +102,7 @@ input.wordleLetters {
 /* TODO Look up proper colors. */
 input.banned {
   width: 90%;
+  margin-top: 0.5rem;
   color: #f2f2f2;
   background-color: darkgray;
 }
@@ -119,4 +120,8 @@ input.known {
 input.oneFifth {
   /* Leave some space for the gap. */
   width: 16%;
+}
+
+.possibleSolutions {
+  margin-top: 1em;
 }

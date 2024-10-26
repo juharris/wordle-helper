@@ -102,7 +102,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div>
+        <div className={styles.possibleSolutions}>
           Possible Solutions ({response.candidates.length}):
           <div>
             {response.candidates.map((candidate) =>
