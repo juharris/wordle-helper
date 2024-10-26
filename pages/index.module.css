@@ -125,3 +125,12 @@ input.oneFifth {
 .possibleSolutions {
   margin-top: 1em;
 }
+
+.dateDetails {
+  display: inline;
+  margin-left: 0.2em;
+}
+
+.dateSummary {
+  display: inline;
+}

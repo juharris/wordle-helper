@@ -110,13 +110,23 @@ export default function Home() {
         <div className={styles.possibleSolutions}>
           Possible Solutions ({response.candidates.length}):
           <div>
-            {response.candidates.map((candidate) =>
-            (<div key={candidate.w}>
-              {candidate.w}
-              {candidate.d &&
-                <span title={candidate.d}>📅</span>
+            {response.candidates.map((candidate) => {
+              let date: string | undefined = undefined
+              if (candidate.d) {
+                const [year, month, day] = candidate.d.split('-')
+                const yearInt = parseInt(year, 10)
+                const monthInt = parseInt(month, 10) - 1
+                const dayInt = parseInt(day, 10)
+                date = new Date(yearInt, monthInt, dayInt).toDateString()
               }
-            </div>)
+              return (<div key={candidate.w}>
+                {candidate.w}
+                {candidate.d && <details className={styles.dateDetails} title={date}>
+                  <summary className={styles.dateSummary}>📅</summary>
+                  {date}
+                </details>}
+              </div>)
+            }
             )}
           </div>
         </div>
