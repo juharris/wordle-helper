@@ -133,6 +133,14 @@ export default function Home() {
       </main>
 
       <footer className={styles.footer}>
+        {/* Using `&nbsp;` is hacky, but the CSS in this footer is weird and `{" "}` didn't show. */}
+        Source code:&nbsp;
+        <a href='https://github.com/juharris/wordle-helper'
+          target='_blank'
+          rel='noopener noreferrer'
+          >
+          https://github.com/juharris/wordle-helper
+        </a>
       </footer>
     </div>
   );
