@@ -44,7 +44,12 @@ export default function Home() {
         value={wordleState.known[i]}
         onChange={(e) => {
           const { known } = wordleState
-          known[i] = e.target.value.toUpperCase()
+          let { value } = e.target
+          if (value.length > 1) {
+            // Get just the last letter.
+            value = value.substring(value.length - 1)
+          }
+          known[i] = value.toUpperCase()
           setWordleState({
             ...wordleState,
             known,
