@@ -68,10 +68,6 @@ export default function Home() {
           Wordle Helper
         </h1>
 
-        <p className={styles.description}>
-          Fill in the information below to get possible solutions.
-        </p>
-
         <div className={styles.inputsSection}>
           <div>
             Letters not in the word:
