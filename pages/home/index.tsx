@@ -1,8 +1,31 @@
-import Head from 'next/head';
 import styles from '@/pages/index.module.css';
-import { useState } from 'react';
-import { WordleFilter, WordleState } from 'app/solver/filter';
+import { WordleFilter, WordleSolutionCandidate, WordleState } from 'app/solver/filter';
+import Head from 'next/head';
 import validWords from 'public/words.json';
+import { useRef, useState } from 'react';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
+
+
+const PossibleSolution = ({ data, index, style }: ListChildComponentProps) => {
+  const candidate: WordleSolutionCandidate = data[index]
+  let date: string | undefined = undefined
+  if (candidate.d) {
+    const [year, month, day] = candidate.d.split('-')
+    const yearInt = parseInt(year, 10)
+    const monthInt = parseInt(month, 10) - 1
+    const dayInt = parseInt(day, 10)
+    date = new Date(yearInt, monthInt, dayInt).toDateString()
+  }
+  return (<div key={candidate.w} style={style}>
+    <span className={styles.possibleSolutionWord}>
+      {candidate.w}
+    </span>
+    {date && <span className={styles.wordDate}>
+      <span className={styles.calendarIcon}>📅</span>
+      {date}
+    </span>}
+  </div>);
+}
 
 export default function Home() {
   const [wordleState, setWordleState] = useState<WordleState>({
@@ -11,12 +34,12 @@ export default function Home() {
     known: ["", "", "", "", ""],
   })
 
-  // TODO useMemo?
-  const wordleFilter = new WordleFilter(validWords)
-  const response = wordleFilter.filter(wordleState)
+  const wordleFilter = useRef(new WordleFilter(validWords))
+  const response = wordleFilter.current.filter(wordleState)
 
+  const numLetters = 5
   const hintInputs = []
-  for (let i = 0; i < 5; ++i) {
+  for (let i = 0; i < numLetters; ++i) {
     hintInputs.push(
       <input type='text' key={i}
         aria-label={`Hint for letter ${i + 1}`}
@@ -36,7 +59,7 @@ export default function Home() {
   }
 
   const knownInputs = []
-  for (let i = 0; i < 5; ++i) {
+  for (let i = 0; i < numLetters; ++i) {
     knownInputs.push(
       <input type='text' key={i}
         aria-label={`Answer for letter ${i + 1}`}
@@ -77,7 +100,6 @@ export default function Home() {
           <div>
             Letters not in the word:
           </div>
-          {/* TODO Don't let browser suggest previous inputs. */}
           <input type='text'
             aria-label="banned letters"
             className={`${styles.wordleLetters} ${styles.banned}`}
@@ -109,26 +131,16 @@ export default function Home() {
 
         <div className={styles.possibleSolutions}>
           Possible Solutions ({response.candidates.length}):
-          <div>
-            {response.candidates.map((candidate) => {
-              let date: string | undefined = undefined
-              if (candidate.d) {
-                const [year, month, day] = candidate.d.split('-')
-                const yearInt = parseInt(year, 10)
-                const monthInt = parseInt(month, 10) - 1
-                const dayInt = parseInt(day, 10)
-                date = new Date(yearInt, monthInt, dayInt).toDateString()
-              }
-              return (<div key={candidate.w}>
-                {candidate.w}
-                {candidate.d && <details className={styles.dateDetails} title={date}>
-                  <summary className={styles.dateSummary}>📅</summary>
-                  {date}
-                </details>}
-              </div>)
-            }
-            )}
-          </div>
+          <FixedSizeList
+            className={styles.possibleSolutionsList}
+            height={520}
+            itemCount={response.candidates.length}
+            itemData={response.candidates}
+            itemSize={25}
+            width={300}
+          >
+            {PossibleSolution}
+          </FixedSizeList>
         </div>
       </main>
 
@@ -138,8 +150,8 @@ export default function Home() {
         <a href='https://github.com/juharris/wordle-helper'
           target='_blank'
           rel='noopener noreferrer'
-          >
-          https://github.com/juharris/wordle-helper
+        >
+          github.com/juharris/wordle-helper
         </a>
       </footer>
     </div>
