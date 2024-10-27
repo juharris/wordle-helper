@@ -17,11 +17,13 @@ const PossibleSolution = ({ data, index, style }: ListChildComponentProps) => {
     date = new Date(yearInt, monthInt, dayInt).toDateString()
   }
   return (<div key={candidate.w} style={style}>
-    {candidate.w}
-    {date && <>
+    <span className={styles.possibleSolutionWord}>
+      {candidate.w}
+    </span>
+    {date && <span className={styles.wordDate}>
       <span className={styles.calendarIcon}>📅</span>
       {date}
-    </>}
+    </span>}
   </div>);
 }
 
@@ -130,6 +132,7 @@ export default function Home() {
         <div className={styles.possibleSolutions}>
           Possible Solutions ({response.candidates.length}):
           <FixedSizeList
+            className={styles.possibleSolutionsList}
             height={520}
             itemCount={response.candidates.length}
             itemData={response.candidates}
