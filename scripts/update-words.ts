@@ -47,8 +47,6 @@ async function getUsedWords(): Promise<Map<string, string>> {
     return result
 }
 
-
-
 function saveWords(words: typeof validWords) {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
@@ -68,6 +66,11 @@ async function addUsedDates() {
 }
 
 async function main() {
+    // TODO Update possible words using https://wordsrated.com/wordle-words and maybe somewhere else.
+    // We're missing "MOMMY" and a few others.
+    // Be fault tolerant and validate the numbers of words to ensure it's within a reasonable range.
+    // Ensure a few known words are in the list.
+    // Ensure each word only have 5 letters.
     await addUsedDates()
 }
 
