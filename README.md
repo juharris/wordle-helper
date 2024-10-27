@@ -3,7 +3,7 @@
 Helps check for possible Wordle solutions and shows words that have already been solutions in the past.
 Try it [here](https://juharris.github.io/wordle-helper/home).
 
-![example of entering letters into the tool](./assets/example.png)
+<img src="./assets/example.png" alt="example of entering letters into the tool" width="500"/>
 
 To avoid spoilers, the page will not show if a words was a solution from the last few days.
 
