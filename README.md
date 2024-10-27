@@ -5,7 +5,7 @@ Try it [here](https://juharris.github.io/wordle-helper/home).
 
 <img src="./assets/example.png" alt="example of entering letters into the tool" width="500"/>
 
-To avoid spoilers, the page will not show if a words was a solution from the last few days.
+To avoid spoilers, the page will not show if a word was a solution from the last few days.
 
 Date sources:
 * Past solutions:
