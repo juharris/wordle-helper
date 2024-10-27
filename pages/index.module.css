@@ -125,11 +125,7 @@ input.oneFifth {
   margin-top: 1em;
 }
 
-.dateDetails {
-  display: inline;
-  margin-left: 0.2em;
-}
-
-.dateSummary {
-  display: inline;
+.calendarIcon {
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
 }
