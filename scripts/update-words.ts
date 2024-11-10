@@ -47,6 +47,10 @@ async function getUsedWords(): Promise<Map<string, string>> {
     return result
 }
 
+function isValidWord(word: string): boolean {
+    return word.length === 5
+}
+
 function saveWords(words: typeof validWords) {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
@@ -59,9 +63,20 @@ async function addUsedDates() {
     for (const word of validWords.words) {
         const date = usedWords.get(word.w)
         if (date) {
-            (word as any).d = date
+            word.d = date
+            usedWords.delete(word.w)
         }
     }
+
+    for (const [word, date] of usedWords.entries()) {
+        if (!isValidWord(word)) {
+            console.warn(`Ignoring invalid previous solution "${word}".`)
+            continue
+        }
+        console.log(`Adding previous solution "${word}" with date "${date}".`)
+        validWords.words.push({ w: word, s: ['fiveforks'], d: date })
+    }
+
     saveWords(validWords)
 }
 
