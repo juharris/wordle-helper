@@ -12,8 +12,8 @@ async function getUsedWords(): Promise<Map<string, string>> {
         const html = response.data
         const root = parse(html);
 
-        const chronlist = root.querySelector('#chronlist')
-        if (!chronlist) {
+        const words = root.querySelector('#chronlist')
+        if (!words) {
             throw new Error(`Could not find element with ID 'chronlist'.`)
         }
 
@@ -21,7 +21,7 @@ async function getUsedWords(): Promise<Map<string, string>> {
         const thresholdDate = new Date()
         thresholdDate.setDate(thresholdDate.getDate() - 3)
 
-        for (const child of chronlist.childNodes) {
+        for (const child of words.childNodes) {
             if (child.nodeType !== NodeType.TEXT_NODE) {
                 continue
             }
