@@ -62,6 +62,7 @@ export default function Home() {
   for (let i = 0; i < numLetters; ++i) {
     knownInputs.push(
       <input type='text' key={i}
+        id={`known-${i}`}
         aria-label={`Answer for letter ${i + 1}`}
         className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
         value={wordleState.known[i]}
@@ -77,6 +78,17 @@ export default function Home() {
             ...wordleState,
             known,
           })
+
+          if (value) {
+            // Try to skip to the next input.
+            const nextIndex = i + 1
+            if (nextIndex < numLetters) {
+              const nextInput = document.getElementById(`known-${nextIndex}`)
+              if (nextInput instanceof HTMLInputElement) {
+                nextInput.focus()
+              }
+            }
+          }
         }}
       />
     )
