@@ -36,6 +36,12 @@ export default function Home() {
 
   const wordleFilter = useRef(new WordleFilter(validWords))
   const response = wordleFilter.current.filter(wordleState)
+  let numUnusedSolutions = 0
+  for (const candidate of response.candidates) {
+    if (candidate.d === undefined) {
+      ++numUnusedSolutions
+    }
+  }
 
   const numLetters = 5
   const hintInputs = []
@@ -142,7 +148,7 @@ export default function Home() {
         </div>
 
         <div className={styles.possibleSolutions}>
-          Possible Solutions ({response.candidates.length}):
+          Possible Solutions ({response.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{response.candidates.length}):
           <FixedSizeList
             className={styles.possibleSolutionsList}
             height={520}
