@@ -39,11 +39,7 @@ export interface ValidWords {
 }
 
 export class WordleFilter {
-    constructor(
-        private validWords: ValidWords) {
-    }
-
-    buildPattern(state: WordleState): RegExp {
+    private static buildPattern = (state: WordleState): RegExp => {
         const options = [
             'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
             'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -86,23 +82,8 @@ export class WordleFilter {
         return new RegExp(pattern)
     }
 
-    filter(
-        state: WordleState,
-        possibleSolutions: ValidWords | undefined = undefined)
-        : WordleFilterResponse {
-        if (possibleSolutions === undefined) {
-            possibleSolutions = this.validWords
-        }
-
-        // Check for the empty case to avoid filtering all words.
-        if (state.banned.every(b => !b) && state.hints.every(h => !h) && state.known.every(k => !k)) {
-            return {
-                candidates: possibleSolutions.words,
-            }
-        }
-
-        const pattern = this.buildPattern(state)
-        const candidates: WordleSolutionCandidate[] = []
+    private static getCandidates = (possibleSolutions: ValidWords, state: WordleState, pattern: RegExp) => {
+        const result: WordleSolutionCandidate[] = []
         for (const candidate of possibleSolutions.words) {
             const { w: word } = candidate
             let skipWord = false
@@ -119,25 +100,45 @@ export class WordleFilter {
                 continue
             }
 
-            candidates.push(candidate)
+            result.push(candidate)
         }
 
+        return result
+    }
+
+    private static sortCandidates = (candidates: WordleSolutionCandidate[]) => {
+        const locale = 'en'
         // Sort by date, then by word.
         candidates.sort((c1, c2) => {
             if (c1.d && c2.d) {
-                // All dates should be unique, so we don't need to compare the words.
-                return c1.w.localeCompare(c2.w)
+                // All dates should be unique, so we don't need to compare them.
+                return c1.w.localeCompare(c2.w, locale)
             } else if (c1.d) {
                 return 1
             } else if (c2.d) {
                 return -1
             }
-            return c1.w.localeCompare(c2.w)
+            return c1.w.localeCompare(c2.w, locale)
         })
+    }
+
+    filter(
+        state: WordleState,
+        possibleSolutions: ValidWords)
+        : WordleFilterResponse {
+        // Check for the empty case to avoid filtering all words.
+        if (state.banned.every(b => !b) && state.hints.every(h => !h) && state.known.every(k => !k)) {
+            return {
+                candidates: possibleSolutions.words,
+            }
+        }
+
+        const pattern = WordleFilter.buildPattern(state)
+        const candidates = WordleFilter.getCandidates(possibleSolutions, state, pattern)
+        WordleFilter.sortCandidates(candidates)
 
         return {
             candidates,
         }
     }
-
 }

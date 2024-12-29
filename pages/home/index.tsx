@@ -16,12 +16,12 @@ const getInitialWordleState = (): WordleState => {
 
 export default function Home() {
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
-  const wordleFilter = useRef(new WordleFilter(allValidWords))
+  const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
 
   // Initialize the candidates to all valid words.
   useEffect(() => {
-    setFilterResponse(wordleFilter.current.filter(wordleState))
+    setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords))
   }, [])
 
   if (!filterResponse) {

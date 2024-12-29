@@ -3,7 +3,7 @@ import fs from 'fs'
 
 describe("WordleFilter", () => {
     const validWords: ValidWords = JSON.parse(fs.readFileSync('__tests__/test_data/valid_words.json', { encoding: 'utf-8' }))
-    const wordleFilter = new WordleFilter(validWords)
+    const wordleFilter = new WordleFilter()
 
     test("empty", () => {
         const state: WordleState = {
@@ -11,7 +11,7 @@ describe("WordleFilter", () => {
             banned: [],
             hints: [],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         expect(response.candidates.length).toBe(validWords.words.length);
     })
 
@@ -27,7 +27,7 @@ describe("WordleFilter", () => {
                 "D"
             ],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         const expectedResponse: WordleFilterResponse = {
             candidates: [
                 {
@@ -55,7 +55,7 @@ describe("WordleFilter", () => {
                 "D"
             ],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         const expectedResponse: WordleFilterResponse = {
             candidates: [
                 {
@@ -80,7 +80,7 @@ describe("WordleFilter", () => {
                 ""
             ],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         const expectedResponse: WordleFilterResponse = {
             candidates: [
                 {
@@ -108,7 +108,7 @@ describe("WordleFilter", () => {
                 ""
             ],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         const expectedResponse: WordleFilterResponse = {
             candidates: [
                 {
@@ -132,7 +132,7 @@ describe("WordleFilter", () => {
                 "Z"
             ],
         }
-        const response = wordleFilter.filter(state)
+        const response = wordleFilter.filter(state, validWords)
         const expectedResponse: WordleFilterResponse = {
             candidates: [
                 {
