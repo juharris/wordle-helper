@@ -38,3 +38,14 @@ npm run dev
 ```bash
 npm test
 ```
+
+## Updating Words
+To update the words, run the following command:
+```bash
+npm run update-words
+```
+
+To help see this difference clearly, run:
+```bash
+git diff --color-words='[^,]'
+```

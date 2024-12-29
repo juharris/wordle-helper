@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import { NodeType, parse } from 'node-html-parser'
 import validWords from '../public/words.json'
 
-async function getUsedWords(): Promise<Map<string, string>> {
+const getUsedWords = async (): Promise<Map<string, string>> => {
     const url = 'https://www.fiveforks.com/wordle'
     const result = new Map<string, string>()
     console.log(`Fetching '${url}'...`)
@@ -47,18 +47,18 @@ async function getUsedWords(): Promise<Map<string, string>> {
     return result
 }
 
-function isValidWord(word: string): boolean {
+const isValidWord = (word: string): boolean => {
     return word.length === 5
 }
 
-function saveWords(words: typeof validWords) {
+const saveWords = (words: typeof validWords) => {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
     fs.writeFileSync(path, JSON.stringify(words))
     console.log(`Words saved to '${path}'.`)
 }
 
-async function addUsedDates() {
+const addUsedDates = async () => {
     const usedWords = await getUsedWords()
     for (const word of validWords.words) {
         const date = usedWords.get(word.w)
