@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FixedSizeList } from 'react-window';
 import { PossibleSolution } from './possible-solution';
 
-function getInitialWordleState(): WordleState | (() => WordleState) {
+const getInitialWordleState = (): WordleState => {
   return {
     banned: [],
     hints: ["", "", "", "", ""],
@@ -19,13 +19,25 @@ export default function Home() {
   const wordleFilter = useRef(new WordleFilter(allValidWords))
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
 
+  // Initialize the candidates to all valid words.
   useEffect(() => {
     setFilterResponse(wordleFilter.current.filter(wordleState))
-  }, [wordleState])
+  }, [])
 
   if (!filterResponse) {
     // Let the effect call `setFilterResponse` before rendering.
     return (<></>)
+  }
+
+  const updateCandidates = (isMoreRestrictive: boolean, newWordleState: { banned: string[]; known: string[]; hints: string[]; }) => {
+    setWordleState(newWordleState)
+    if (isMoreRestrictive) {
+      // A new restriction was added so filter out from the current candidates.
+      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }));
+    } else {
+      // A restriction was removed so filter from the full list of words.
+      setFilterResponse(wordleFilter.current.filter(newWordleState));
+    }
   }
 
   let numUnusedSolutions = 0
@@ -41,17 +53,19 @@ export default function Home() {
     hintInputs.push(
       <input type='text' key={i}
         aria-label={`Hint for letter ${i + 1}`}
+        autoComplete='off'
         className={`${styles.wordleLetters} ${styles.hints} ${styles.oneFifth}`}
         value={wordleState.hints[i]}
         onChange={(e) => {
           const { hints } = wordleState
           hints[i] = e.target.value.toUpperCase()
-          setWordleState({
+          const newWordleState = {
             ...wordleState,
             hints,
-          })
-        }
-        }
+          }
+          const isMoreRestrictive = hints[i].length > wordleState.hints[i].length
+          updateCandidates(isMoreRestrictive, newWordleState)
+        }}
       />
     )
   }
@@ -62,6 +76,7 @@ export default function Home() {
       <input type='text' key={i}
         id={`known-${i}`}
         aria-label={`Answer for letter ${i + 1}`}
+        autoComplete='off'
         className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
         value={wordleState.known[i]}
         onChange={(e) => {
@@ -72,10 +87,12 @@ export default function Home() {
             value = value.substring(value.length - 1)
           }
           known[i] = value.toUpperCase()
-          setWordleState({
+          const newWordleState = {
             ...wordleState,
             known,
-          })
+          }
+          const isMoreRestrictive = value.length > wordleState.known[i].length
+            updateCandidates(isMoreRestrictive, newWordleState)
 
           if (value) {
             // Try to skip to the next input.
@@ -113,15 +130,19 @@ export default function Home() {
             </div>
             <input type='text'
               aria-label="banned letters"
+              autoComplete='off'
               className={`${styles.wordleLetters} ${styles.banned}`}
               value={wordleState.banned.join("")}
               onChange={(e) => {
+                const prevBanned = wordleState.banned
                 const { value } = e.target
                 const banned = value.toUpperCase().split("")
-                setWordleState({
+                const newWordleState = {
                   ...wordleState,
                   banned,
-                })
+                }
+                const isMoreRestrictive = banned.length > prevBanned.length
+                updateCandidates(isMoreRestrictive, newWordleState)
               }}
             />
           </div>
@@ -129,7 +150,7 @@ export default function Home() {
             <button className={styles.resetButton}
               title="Reset all inputs"
               type='button'
-              onClick={() => setWordleState(getInitialWordleState())}
+              onClick={() => updateCandidates(false, getInitialWordleState())}
             >
               🗑️
             </button>

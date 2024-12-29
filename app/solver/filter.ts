@@ -86,17 +86,24 @@ export class WordleFilter {
         return new RegExp(pattern)
     }
 
-    filter(state: WordleState): WordleFilterResponse {
+    filter(
+        state: WordleState,
+        possibleSolutions: ValidWords | undefined = undefined)
+        : WordleFilterResponse {
+        if (possibleSolutions === undefined) {
+            possibleSolutions = this.validWords
+        }
+
         // Check for the empty case to avoid filtering all words.
         if (state.banned.every(b => !b) && state.hints.every(h => !h) && state.known.every(k => !k)) {
             return {
-                candidates: this.validWords.words,
+                candidates: possibleSolutions.words,
             }
         }
 
         const pattern = this.buildPattern(state)
         const candidates: WordleSolutionCandidate[] = []
-        for (const candidate of this.validWords.words) {
+        for (const candidate of possibleSolutions.words) {
             const { w: word } = candidate
             let skipWord = false
             for (const hint of state.hints) {
