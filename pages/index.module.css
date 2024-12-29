@@ -41,6 +41,11 @@ button.resetButton {
   cursor: pointer;
 }
 
+button.rankButton {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
 .inputsSection {
   margin-top: 0.75rem;
 }

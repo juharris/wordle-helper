@@ -155,6 +155,16 @@ export default function Home(): JSX.Element {
             >
               🗑️
             </button>
+            <button className={styles.rankButton}
+              title="Toggle ranking"
+              type='button'
+              onClick={() => {
+                setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, !enableRanking))
+                setEnableRanking(!enableRanking)
+              }}
+            >
+              {enableRanking ? "🔠" : "❇️"}
+            </button>
           </div>
         </div>
 

@@ -56,8 +56,7 @@ export class WordleFilter {
                     // Skip letters that are in hints because all words will have them.
                     continue
                 }
-                if (state.known.some(known => known === letter)) {
-                    // Skip letters that are known because all words will have them and we're trying to maximize the number of letters in a guess.
+                if (state.known.some((known, index) => known === letter && word[index] !== letter)) {
                     continue
                 }
                 const count = letterFrequencies.get(letter) || 0
@@ -69,25 +68,19 @@ export class WordleFilter {
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
             const letters = new Set(word.split(''))
-            let count = 0
             let score = 0
             for (const letter of letters) {
                 if (state.hints.some(hint => hint === letter)) {
                     // Skip letters that are in hints because all words will have them.
                     continue
                 }
-                if (state.known.some(known => known === letter)) {
-                    // Skip letters that are known because all words will have them and we're trying to maximize the number of letters in a guess.
+                if (state.known.some((known, index) => known === letter && word[index] !== letter)) {
                     continue
                 }
                 score += (letterFrequencies.get(letter)!) / letterFrequencies.size
-                ++count
             }
-            if (count === 0) {
-                candidate.score = 0
-            } else {
-                candidate.score = score / count
-            }
+
+            candidate.score = score / word.length
         }
     }
 
@@ -192,24 +185,31 @@ export class WordleFilter {
         possibleSolutions: ValidWords,
         enableRanking = false)
         : WordleFilterResponse {
+        let candidates: WordleSolutionCandidate[]
         // Check for the typical empty case when the page first loads and avoid filtering nothing out from the candidates.
-        if (WordleFilter.isEmptyState(state)) {
-            return {
-                candidates: possibleSolutions.words,
-            }
+        const isEmptyState = WordleFilter.isEmptyState(state)
+        if (isEmptyState) {
+            candidates = possibleSolutions.words
+        } else {
+            const pattern = WordleFilter.buildPattern(state)
+            candidates = WordleFilter.getCandidates(possibleSolutions, state, pattern)
         }
 
-        const pattern = WordleFilter.buildPattern(state)
-        const candidates = WordleFilter.getCandidates(possibleSolutions, state, pattern)
         if (enableRanking) {
             WordleFilter.assignScores(candidates, state)
+            WordleFilter.sortCandidates(candidates)
         } else {
             for (const candidate of candidates) {
                 delete candidate.score
             }
-        }
-        WordleFilter.sortCandidates(candidates)
 
+            if (isEmptyState) {
+                // FIXME Doesn't always sort properly after clearing the candidates.
+                // TODO Gotta re-sort just alphabetically.
+            } else {
+                WordleFilter.sortCandidates(candidates)
+            }
+        }
         return {
             candidates,
         }
