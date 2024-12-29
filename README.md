@@ -20,6 +20,8 @@ Built using a sample for Next.js + Jest.
 This includes Next.js' built-in support for Global CSS, CSS Modules and TypeScript. This example also shows how to use Jest with the App Router and React Server Components.
 
 ## Setup
+Use Node '20.*'.
+
 ```bash
 npm install
 ```
@@ -35,4 +37,15 @@ npm run dev
 
 ```bash
 npm test
+```
+
+## Updating Words
+To update the words, run:
+```bash
+npm run update-words
+```
+
+To help see this difference clearly, run:
+```bash
+git diff --color-words='[^,]'
 ```

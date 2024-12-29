@@ -1,43 +1,47 @@
-import styles from '@/pages/index.module.css';
-import { WordleFilter, WordleSolutionCandidate, WordleState } from 'app/solver/filter';
-import Head from 'next/head';
-import validWords from 'public/words.json';
-import { useRef, useState } from 'react';
-import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import styles from '@/pages/index.module.css'
+import { WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter'
+import Head from 'next/head'
+import allValidWords from 'public/words.json'
+import { useEffect, useRef, useState } from 'react'
+import { FixedSizeList } from 'react-window'
+import { PossibleSolution } from './possible-solution'
 
-
-const PossibleSolution = ({ data, index, style }: ListChildComponentProps) => {
-  const candidate: WordleSolutionCandidate = data[index]
-  let date: string | undefined = undefined
-  if (candidate.d) {
-    const [year, month, day] = candidate.d.split('-')
-    const yearInt = parseInt(year, 10)
-    const monthInt = parseInt(month, 10) - 1
-    const dayInt = parseInt(day, 10)
-    date = new Date(yearInt, monthInt, dayInt).toDateString()
-  }
-  return (<div key={candidate.w} style={style}>
-    <span className={styles.possibleSolutionWord}>
-      {candidate.w}
-    </span>
-    {date && <span className={styles.wordDate}>
-      <span className={styles.calendarIcon}>📅</span>
-      {date}
-    </span>}
-  </div>);
-}
-
-export default function Home() {
-  const [wordleState, setWordleState] = useState<WordleState>({
+const getInitialWordleState = (): WordleState => {
+  return {
     banned: [],
     hints: ["", "", "", "", ""],
     known: ["", "", "", "", ""],
-  })
+  }
+}
 
-  const wordleFilter = useRef(new WordleFilter(validWords))
-  const response = wordleFilter.current.filter(wordleState)
+export default function Home() {
+  const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
+  const wordleFilter = useRef(new WordleFilter(allValidWords))
+  const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
+
+  // Initialize the candidates to all valid words.
+  useEffect(() => {
+    setFilterResponse(wordleFilter.current.filter(wordleState))
+  }, [])
+
+  if (!filterResponse) {
+    // Let the effect call `setFilterResponse` before rendering.
+    return (<></>)
+  }
+
+  const updateCandidates = (isMoreRestrictive: boolean, newWordleState: WordleState) => {
+    setWordleState(newWordleState)
+    if (isMoreRestrictive) {
+      // A new restriction was added so filter out from the current candidates.
+      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }))
+    } else {
+      // A restriction was removed so filter from the full list of words.
+      setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords))
+    }
+  }
+
   let numUnusedSolutions = 0
-  for (const candidate of response.candidates) {
+  for (const candidate of filterResponse.candidates) {
     if (candidate.d === undefined) {
       ++numUnusedSolutions
     }
@@ -49,17 +53,19 @@ export default function Home() {
     hintInputs.push(
       <input type='text' key={i}
         aria-label={`Hint for letter ${i + 1}`}
+        autoComplete='off'
         className={`${styles.wordleLetters} ${styles.hints} ${styles.oneFifth}`}
         value={wordleState.hints[i]}
         onChange={(e) => {
           const { hints } = wordleState
           hints[i] = e.target.value.toUpperCase()
-          setWordleState({
+          const newWordleState = {
             ...wordleState,
             hints,
-          })
-        }
-        }
+          }
+          const isMoreRestrictive = hints[i].length > wordleState.hints[i].length
+          updateCandidates(isMoreRestrictive, newWordleState)
+        }}
       />
     )
   }
@@ -70,6 +76,7 @@ export default function Home() {
       <input type='text' key={i}
         id={`known-${i}`}
         aria-label={`Answer for letter ${i + 1}`}
+        autoComplete='off'
         className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
         value={wordleState.known[i]}
         onChange={(e) => {
@@ -80,10 +87,12 @@ export default function Home() {
             value = value.substring(value.length - 1)
           }
           known[i] = value.toUpperCase()
-          setWordleState({
+          const newWordleState = {
             ...wordleState,
             known,
-          })
+          }
+          const isMoreRestrictive = value.length > wordleState.known[i].length
+          updateCandidates(isMoreRestrictive, newWordleState)
 
           if (value) {
             // Try to skip to the next input.
@@ -114,23 +123,38 @@ export default function Home() {
           Wordle Helper
         </h1>
 
-        <div className={styles.inputsSection}>
-          <div>
-            Letters not in the word:
+        <div className={styles.grid}>
+          <div className={styles.inputsSection}>
+            <div>
+              Letters not in the word:
+            </div>
+            <input type='text'
+              aria-label="banned letters"
+              autoComplete='off'
+              className={`${styles.wordleLetters} ${styles.banned}`}
+              value={wordleState.banned.join("")}
+              onChange={(e) => {
+                const prevBanned = wordleState.banned
+                const { value } = e.target
+                const banned = value.toUpperCase().split("")
+                const newWordleState = {
+                  ...wordleState,
+                  banned,
+                }
+                const isMoreRestrictive = banned.length > prevBanned.length
+                updateCandidates(isMoreRestrictive, newWordleState)
+              }}
+            />
           </div>
-          <input type='text'
-            aria-label="banned letters"
-            className={`${styles.wordleLetters} ${styles.banned}`}
-            value={wordleState.banned.join("")}
-            onChange={(e) => {
-              const { value } = e.target
-              const banned = value.toUpperCase().split("")
-              setWordleState({
-                ...wordleState,
-                banned,
-              })
-            }}
-          />
+          <div>
+            <button className={styles.resetButton}
+              title="Reset all inputs"
+              type='button'
+              onClick={() => updateCandidates(false, getInitialWordleState())}
+            >
+              🗑️
+            </button>
+          </div>
         </div>
 
         <div className={styles.inputsSection}>
@@ -148,12 +172,12 @@ export default function Home() {
         </div>
 
         <div className={styles.possibleSolutions}>
-          Possible Solutions ({response.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{response.candidates.length}):
+          Possible Solutions ({filterResponse.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{filterResponse.candidates.length}):
           <FixedSizeList
             className={styles.possibleSolutionsList}
             height={520}
-            itemCount={response.candidates.length}
-            itemData={response.candidates}
+            itemCount={filterResponse.candidates.length}
+            itemData={filterResponse.candidates}
             itemSize={25}
             width={300}
           >
@@ -173,5 +197,5 @@ export default function Home() {
         </a>
       </footer>
     </div>
-  );
+  )
 }

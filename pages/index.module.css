@@ -37,6 +37,10 @@
   }
 }
 
+button.resetButton {
+  cursor: pointer;
+}
+
 .inputsSection {
   margin-top: 0.75rem;
 }
@@ -76,7 +80,8 @@ input.oneFifth {
 }
 
 .possibleSolutionsList {
-  margin-top: 0.5rem;;
+  margin-top: 0.5rem;
+  ;
 }
 
 .possibleSolutionWord {
