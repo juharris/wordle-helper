@@ -14,14 +14,15 @@ const getInitialWordleState = (): WordleState => {
   }
 }
 
-export default function Home() {
+export default function Home(): JSX.Element {
+  const [enableRanking, setEnableRanking] = useState(false)
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
   const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
 
   // Initialize the candidates to all valid words.
   useEffect(() => {
-    setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords))
+    setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, enableRanking))
   }, [])
 
   if (!filterResponse) {
@@ -33,10 +34,10 @@ export default function Home() {
     setWordleState(newWordleState)
     if (isMoreRestrictive) {
       // A new restriction was added so filter out from the current candidates.
-      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }))
+      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }, enableRanking))
     } else {
       // A restriction was removed so filter from the full list of words.
-      setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords))
+      setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords, enableRanking))
     }
   }
 
