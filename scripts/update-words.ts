@@ -1,7 +1,28 @@
+import { ValidWords } from 'app/solver/filter'
 import axios from 'axios'
 import * as fs from 'fs'
 import { NodeType, parse } from 'node-html-parser'
 import validWords from '../public/words.json'
+
+const addUsedDates = async () => {
+    const usedWords = await getUsedWords()
+    for (const word of validWords.words) {
+        const date = usedWords.get(word.w)
+        if (date) {
+            word.d = date
+            usedWords.delete(word.w)
+        }
+    }
+
+    for (const [word, date] of usedWords.entries()) {
+        if (!isValidWord(word)) {
+            console.warn(`Ignoring invalid previous solution "${word}".`)
+            continue
+        }
+        console.log(`Adding previous solution "${word}" with date "${date}".`)
+        validWords.words.push({ w: word, s: ['fiveforks'], d: date })
+    }
+}
 
 const getUsedWords = async (): Promise<Map<string, string>> => {
     const url = 'https://www.fiveforks.com/wordle'
@@ -51,33 +72,19 @@ const isValidWord = (word: string): boolean => {
     return word.length === 5
 }
 
-const saveWords = (words: typeof validWords) => {
+const saveWords = (words: ValidWords) => {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
     fs.writeFileSync(path, JSON.stringify(words))
     console.log(`Words saved to '${path}'.`)
 }
 
-const addUsedDates = async () => {
-    const usedWords = await getUsedWords()
-    for (const word of validWords.words) {
-        const date = usedWords.get(word.w)
-        if (date) {
-            word.d = date
-            usedWords.delete(word.w)
-        }
-    }
-
-    for (const [word, date] of usedWords.entries()) {
-        if (!isValidWord(word)) {
-            console.warn(`Ignoring invalid previous solution "${word}".`)
-            continue
-        }
-        console.log(`Adding previous solution "${word}" with date "${date}".`)
-        validWords.words.push({ w: word, s: ['fiveforks'], d: date })
-    }
-
-    saveWords(validWords)
+const sortWords = (validWords: ValidWords) => {
+    // Sort alphabetically so that they can easily be browsed in the web page in the default view.
+    // It's nice to show that saved have used dates in the initial view.
+    validWords.words.sort((a, b) => {
+        return a.w.localeCompare(b.w)
+    })
 }
 
 async function main() {
@@ -87,6 +94,10 @@ async function main() {
     // Ensure a few known words are in the list.
     // Ensure each word only have 5 letters.
     await addUsedDates()
+
+    sortWords(validWords)
+
+    saveWords(validWords)
 }
 
 main()
