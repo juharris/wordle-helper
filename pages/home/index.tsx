@@ -4,7 +4,7 @@ import Head from 'next/head'
 import allValidWords from 'public/words.json'
 import { useEffect, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
-import { PossibleSolution } from './possible-solution'
+import PossibleSolution from './possible-solution'
 
 const getInitialWordleState = (): WordleState => {
   return {
