@@ -1,6 +1,6 @@
-import styles from '@/pages/index.module.css';
-import { WordleSolutionCandidate } from 'app/solver/filter';
-import { ListChildComponentProps } from 'react-window';
+import styles from '@/pages/index.module.css'
+import { WordleSolutionCandidate } from 'app/solver/filter'
+import { ListChildComponentProps } from 'react-window'
 
 export default function PossibleSolution({ data, index, style }: ListChildComponentProps) {
   const candidate: WordleSolutionCandidate = data[index]
