@@ -40,7 +40,7 @@ npm test
 ```
 
 ## Updating Words
-To update the words, run the following command:
+To update the words, run:
 ```bash
 npm run update-words
 ```

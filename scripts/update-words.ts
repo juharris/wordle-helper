@@ -83,7 +83,7 @@ const sortWords = (validWords: ValidWords) => {
     // Sort alphabetically so that they can easily be browsed in the web page in the default view.
     // It's nice to show that saved have used dates in the initial view.
     validWords.words.sort((a, b) => {
-        return a.w.localeCompare(b.w)
+        return a.w.localeCompare(b.w, 'en')
     })
 }
 

@@ -1,17 +1,17 @@
-import styles from '@/pages/index.module.css';
-import { WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter';
-import Head from 'next/head';
-import allValidWords from 'public/words.json';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { FixedSizeList } from 'react-window';
-import { PossibleSolution } from './possible-solution';
+import styles from '@/pages/index.module.css'
+import { WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter'
+import Head from 'next/head'
+import allValidWords from 'public/words.json'
+import { useEffect, useRef, useState } from 'react'
+import { FixedSizeList } from 'react-window'
+import { PossibleSolution } from './possible-solution'
 
 const getInitialWordleState = (): WordleState => {
   return {
     banned: [],
     hints: ["", "", "", "", ""],
     known: ["", "", "", "", ""],
-  };
+  }
 }
 
 export default function Home() {
@@ -29,14 +29,14 @@ export default function Home() {
     return (<></>)
   }
 
-  const updateCandidates = (isMoreRestrictive: boolean, newWordleState: { banned: string[]; known: string[]; hints: string[]; }) => {
+  const updateCandidates = (isMoreRestrictive: boolean, newWordleState: WordleState) => {
     setWordleState(newWordleState)
     if (isMoreRestrictive) {
       // A new restriction was added so filter out from the current candidates.
-      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }));
+      setFilterResponse(wordleFilter.current.filter(newWordleState, { words: filterResponse.candidates }))
     } else {
       // A restriction was removed so filter from the full list of words.
-      setFilterResponse(wordleFilter.current.filter(newWordleState));
+      setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords))
     }
   }
 
@@ -92,7 +92,7 @@ export default function Home() {
             known,
           }
           const isMoreRestrictive = value.length > wordleState.known[i].length
-            updateCandidates(isMoreRestrictive, newWordleState)
+          updateCandidates(isMoreRestrictive, newWordleState)
 
           if (value) {
             // Try to skip to the next input.
@@ -197,5 +197,5 @@ export default function Home() {
         </a>
       </footer>
     </div>
-  );
+  )
 }
