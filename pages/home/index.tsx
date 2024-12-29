@@ -1,43 +1,35 @@
 import styles from '@/pages/index.module.css';
-import { WordleFilter, WordleSolutionCandidate, WordleState } from 'app/solver/filter';
+import { WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter';
 import Head from 'next/head';
-import validWords from 'public/words.json';
-import { useRef, useState } from 'react';
-import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import allValidWords from 'public/words.json';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FixedSizeList } from 'react-window';
+import { PossibleSolution } from './possible-solution';
 
-
-const PossibleSolution = ({ data, index, style }: ListChildComponentProps) => {
-  const candidate: WordleSolutionCandidate = data[index]
-  let date: string | undefined = undefined
-  if (candidate.d) {
-    const [year, month, day] = candidate.d.split('-')
-    const yearInt = parseInt(year, 10)
-    const monthInt = parseInt(month, 10) - 1
-    const dayInt = parseInt(day, 10)
-    date = new Date(yearInt, monthInt, dayInt).toDateString()
-  }
-  return (<div key={candidate.w} style={style}>
-    <span className={styles.possibleSolutionWord}>
-      {candidate.w}
-    </span>
-    {date && <span className={styles.wordDate}>
-      <span className={styles.calendarIcon}>📅</span>
-      {date}
-    </span>}
-  </div>);
-}
-
-export default function Home() {
-  const [wordleState, setWordleState] = useState<WordleState>({
+function getInitialWordleState(): WordleState | (() => WordleState) {
+  return {
     banned: [],
     hints: ["", "", "", "", ""],
     known: ["", "", "", "", ""],
-  })
+  };
+}
 
-  const wordleFilter = useRef(new WordleFilter(validWords))
-  const response = wordleFilter.current.filter(wordleState)
+export default function Home() {
+  const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
+  const wordleFilter = useRef(new WordleFilter(allValidWords))
+  const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
+
+  useEffect(() => {
+    setFilterResponse(wordleFilter.current.filter(wordleState))
+  }, [wordleState])
+
+  if (!filterResponse) {
+    // Let the effect call `setFilterResponse` before rendering.
+    return (<></>)
+  }
+
   let numUnusedSolutions = 0
-  for (const candidate of response.candidates) {
+  for (const candidate of filterResponse.candidates) {
     if (candidate.d === undefined) {
       ++numUnusedSolutions
     }
@@ -114,23 +106,34 @@ export default function Home() {
           Wordle Helper
         </h1>
 
-        <div className={styles.inputsSection}>
-          <div>
-            Letters not in the word:
+        <div className={styles.grid}>
+          <div className={styles.inputsSection}>
+            <div>
+              Letters not in the word:
+            </div>
+            <input type='text'
+              aria-label="banned letters"
+              className={`${styles.wordleLetters} ${styles.banned}`}
+              value={wordleState.banned.join("")}
+              onChange={(e) => {
+                const { value } = e.target
+                const banned = value.toUpperCase().split("")
+                setWordleState({
+                  ...wordleState,
+                  banned,
+                })
+              }}
+            />
           </div>
-          <input type='text'
-            aria-label="banned letters"
-            className={`${styles.wordleLetters} ${styles.banned}`}
-            value={wordleState.banned.join("")}
-            onChange={(e) => {
-              const { value } = e.target
-              const banned = value.toUpperCase().split("")
-              setWordleState({
-                ...wordleState,
-                banned,
-              })
-            }}
-          />
+          <div>
+            <button className={styles.resetButton}
+              title="Reset all inputs"
+              type='button'
+              onClick={() => setWordleState(getInitialWordleState())}
+            >
+              🗑️
+            </button>
+          </div>
         </div>
 
         <div className={styles.inputsSection}>
@@ -148,12 +151,12 @@ export default function Home() {
         </div>
 
         <div className={styles.possibleSolutions}>
-          Possible Solutions ({response.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{response.candidates.length}):
+          Possible Solutions ({filterResponse.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{filterResponse.candidates.length}):
           <FixedSizeList
             className={styles.possibleSolutionsList}
             height={520}
-            itemCount={response.candidates.length}
-            itemData={response.candidates}
+            itemCount={filterResponse.candidates.length}
+            itemData={filterResponse.candidates}
             itemSize={25}
             width={300}
           >
