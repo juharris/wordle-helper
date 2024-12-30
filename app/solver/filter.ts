@@ -49,6 +49,10 @@ export class WordleFilter {
         // FIXME "_L_RM" should give "ALARM" a score of 100.
         const letterFrequencies = new Map<string, number>()
         for (const candidate of candidates) {
+            if (candidate.d) {
+                // Don't consider words that have been used.
+                continue
+            }
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
             const letters = new Set(word.split(''))
@@ -71,6 +75,10 @@ export class WordleFilter {
         }
 
         for (const candidate of candidates) {
+            if (candidate.d) {
+                // Don't consider words that have been used.
+                continue
+            }
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
             const letters = new Set(word.split(''))
