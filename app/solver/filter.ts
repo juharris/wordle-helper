@@ -46,7 +46,6 @@ export interface ValidWords {
 
 export class WordleFilter {
     private static assignScores = (candidates: WordleSolutionCandidate[], state: WordleState): void => {
-        // TODO Use the position of the letter in the word to give more weight to the score.
         // FIXME "_L_RM" should give "ALARM" a score of 100.
         const letterFrequencies = new Map<string, number>()
         for (const candidate of candidates) {
