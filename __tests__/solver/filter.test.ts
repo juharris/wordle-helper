@@ -1,5 +1,5 @@
-import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from '../../app/solver/filter'
 import fs from 'fs'
+import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from '../../app/solver/filter'
 
 describe("WordleFilter", () => {
     const validWords: ValidWords = JSON.parse(fs.readFileSync('__tests__/test_data/valid_words.json', { encoding: 'utf-8' }))
@@ -12,7 +12,20 @@ describe("WordleFilter", () => {
             hints: [],
         }
         const response = wordleFilter.filter(state, validWords)
-        expect(response.candidates.length).toBe(validWords.words.length);
+        expect(response.candidates.length).toBe(validWords.words.length)
+        expect(Object.is(response.candidates, validWords.words)).toBe(true)
+    })
+
+
+    test("empty", () => {
+        const state: WordleState = {
+            known: [],
+            banned: [],
+            hints: [],
+        }
+        const response = wordleFilter.filter(state, validWords, true)
+        expect(response.candidates.length).toBe(validWords.words.length)
+        expect(Object.is(response.candidates, validWords.words)).toBe(false)
     })
 
     test("simple", () => {
@@ -60,12 +73,12 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "ADIEU",
-                    score: 5 / 12,
+                    score: 70,
                     s: []
                 },
                 {
                     w: "AUDIO",
-                    score: 5 / 12,
+                    score: 70,
                     s: []
                 },
             ]
@@ -156,27 +169,27 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "FRIED",
-                    score: 0.38095238095238093,
-                    s: [],
-                },
-                {
-                    w: "FREED",
-                    score: 0.3571428571428571,
+                    score: 52,
                     s: [],
                 },
                 {
                     w: "FIRST",
-                    score: 1 / 3,
-                    s: [],
-                },
-                {
-                    w: "FRUIT",
-                    score: 2 / 7,
+                    score: 48,
                     s: [],
                 },
                 {
                     w: "FRESH",
-                    score: 0.28571428571428564,
+                    score: 44,
+                    s: [],
+                },
+                {
+                    w: "FRUIT",
+                    score: 44,
+                    s: [],
+                },
+                {
+                    w: "FREED",
+                    score: 40,
                     s: [],
                 },
             ]

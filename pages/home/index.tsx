@@ -155,16 +155,6 @@ export default function Home(): JSX.Element {
             >
               🗑️
             </button>
-            <button className={styles.rankButton}
-              title="Toggle ranking"
-              type='button'
-              onClick={() => {
-                setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, !enableRanking))
-                setEnableRanking(!enableRanking)
-              }}
-            >
-              {enableRanking ? "🔠" : "❇️"}
-            </button>
           </div>
         </div>
 
@@ -183,6 +173,16 @@ export default function Home(): JSX.Element {
         </div>
 
         <div className={styles.possibleSolutions}>
+          <button className={styles.rankButton}
+            title="Toggle ranking"
+            type='button'
+            onClick={() => {
+              setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, !enableRanking))
+              setEnableRanking(!enableRanking)
+            }}
+          >
+            {enableRanking ? "🔠" : "✨"}
+          </button>
           Possible Solutions ({filterResponse.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{filterResponse.candidates.length}):
           <FixedSizeList
             className={styles.possibleSolutionsList}

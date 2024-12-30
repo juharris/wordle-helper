@@ -46,6 +46,8 @@ export interface ValidWords {
 
 export class WordleFilter {
     private static assignScores = (candidates: WordleSolutionCandidate[], state: WordleState): void => {
+        // TODO Use the position of the letter in the word to give more weight to the score.
+        // FIXME "_L_RM" should give "ALARM" a score of 100.
         const letterFrequencies = new Map<string, number>()
         for (const candidate of candidates) {
             const { w: word } = candidate
@@ -64,6 +66,11 @@ export class WordleFilter {
             }
         }
 
+        // Normalize the frequencies.
+        for (const [letter, frequency] of letterFrequencies) {
+            letterFrequencies.set(letter, frequency / candidates.length)
+        }
+
         for (const candidate of candidates) {
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
@@ -77,10 +84,10 @@ export class WordleFilter {
                 if (state.known.some((known, index) => known === letter && word[index] !== letter)) {
                     continue
                 }
-                score += (letterFrequencies.get(letter)!) / letterFrequencies.size
+                score += letterFrequencies.get(letter)!
             }
 
-            candidate.score = score / word.length
+            candidate.score = Math.round(100 * (score / word.length))
         }
     }
 
@@ -189,7 +196,13 @@ export class WordleFilter {
         // Check for the typical empty case when the page first loads and avoid filtering nothing out from the candidates.
         const isEmptyState = WordleFilter.isEmptyState(state)
         if (isEmptyState) {
-            candidates = possibleSolutions.words
+            if (enableRanking) {
+                // Need a copy to avoid re-sorting the original array.
+                candidates = [...possibleSolutions.words]
+            } else {
+                // Use the original and trust the alphabetical order, ignoring dates.
+                candidates = possibleSolutions.words
+            }
         } else {
             const pattern = WordleFilter.buildPattern(state)
             candidates = WordleFilter.getCandidates(possibleSolutions, state, pattern)
@@ -203,13 +216,11 @@ export class WordleFilter {
                 delete candidate.score
             }
 
-            if (isEmptyState) {
-                // FIXME Doesn't always sort properly after clearing the candidates.
-                // TODO Gotta re-sort just alphabetically.
-            } else {
+            if (!isEmptyState) {
                 WordleFilter.sortCandidates(candidates)
             }
         }
+
         return {
             candidates,
         }
