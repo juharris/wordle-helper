@@ -41,6 +41,11 @@ button.resetButton {
   cursor: pointer;
 }
 
+button.rankButton {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
 .inputsSection {
   margin-top: 0.75rem;
 }
@@ -88,9 +93,13 @@ input.oneFifth {
   font-weight: bold;
 }
 
+span.wordScore {
+  margin-left: 0.5rem;
+}
+
 .wordDate {
   position: absolute;
-  left: 4.5rem;
+  left: 6rem;
 }
 
 .calendarIcon {

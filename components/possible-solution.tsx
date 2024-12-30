@@ -16,6 +16,9 @@ export default function PossibleSolution({ data, index, style }: ListChildCompon
     <span className={styles.possibleSolutionWord}>
       {candidate.w}
     </span>
+    {candidate.score !== undefined && <span className={styles.wordScore}>
+      {candidate.score}
+    </span>}
     {date && <span className={styles.wordDate}>
       <span className={styles.calendarIcon}>📅</span>
       {date}
