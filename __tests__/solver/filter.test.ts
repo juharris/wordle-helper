@@ -221,6 +221,31 @@ describe("WordleFilter", () => {
         expect(response).toStrictEqual(expectedResponse)
     })
 
+    test("Multiple hints in same position - ranking", () => {
+        const state: WordleState = {
+            known: ["S", "", "", "", ""],
+            banned: ["ADEU"],
+            hints: [
+                "",
+                "",
+                "IS",
+                "",
+                ""
+            ],
+        }
+        const response = wordleFilter.filter(state, validWords, true)
+        const expectedResponse: WordleFilterResponse = {
+            candidates: [
+                {
+                    w: "STOIC",
+                    score: 60,
+                    s: [],
+                },
+            ]
+        }
+        expect(response).toStrictEqual(expectedResponse)
+    })
+
     test("Hint Z", () => {
         const state: WordleState = {
             known: ["F", "", "", "", ""],

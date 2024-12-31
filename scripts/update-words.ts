@@ -6,9 +6,14 @@ import validWords from '../public/words.json'
 
 const addUsedDates = async () => {
     const usedWords = await getUsedWords()
-    for (const word of validWords.words) {
+    for (const word of (validWords as ValidWords).words) {
+        if (word.d) {
+            usedWords.delete(word.w)
+            continue
+        }
         const date = usedWords.get(word.w)
         if (date) {
+            console.log(`Adding date "${date}" to word "${word.w}".`)
             word.d = date
             usedWords.delete(word.w)
         }

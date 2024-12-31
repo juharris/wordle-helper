@@ -57,7 +57,7 @@ export class WordleFilter {
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
             const letters = new Set(word.split(''))
             for (const letter of letters) {
-                if (state.hints.some(hint => hint === letter)) {
+                if (state.hints.some(hint => hint.includes(letter))) {
                     // Skip letters that are in hints because all words will have them.
                     continue
                 }
@@ -84,7 +84,7 @@ export class WordleFilter {
             const letters = new Set(word.split(''))
             let score = 0
             for (const letter of letters) {
-                if (state.hints.some(hint => hint === letter)) {
+                if (state.hints.some(hint => hint.includes(letter))) {
                     // Skip letters that are in hints because all words will have them.
                     continue
                 }
