@@ -14,6 +14,20 @@ const getInitialWordleState = (): WordleState => {
   }
 }
 
+const areWordsOld = (): boolean => {
+  // Update the page if it's more than 4 days old.
+  // The words should refresh every 2 days, but we'll give it a buffer in case an update fails;
+  // otherwise, there would be a refresh loop.
+  // A more robut implementation would not refresh the entire page and just get the latest words,
+  // however, this is simpler and the format of the words might not be compatible with the page.
+  if (allValidWords.lastUpdated === undefined) {
+    return true
+  }
+  const dateResetThreshold = new Date()
+  dateResetThreshold.setDate(dateResetThreshold.getDate() - 4)
+  return new Date(allValidWords.lastUpdated) < dateResetThreshold
+}
+
 export default function Home(): JSX.Element {
   const [enableRanking, setEnableRanking] = useState(false)
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
@@ -22,6 +36,13 @@ export default function Home(): JSX.Element {
 
   // Initialize the candidates to all valid words.
   useEffect(() => {
+    // Update the page if it's more than 2 days old.
+    if (areWordsOld()) {
+      // Refresh the page to get the latest words.
+      window.location.reload()
+      return
+    }
+
     setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, enableRanking))
   }, [])
 

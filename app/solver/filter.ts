@@ -42,6 +42,8 @@ export interface WordleFilterResponse {
 
 export interface ValidWords {
     words: WordleSolutionCandidate[]
+    /** Old versions might not have the date set yet. */
+    lastUpdated?: string
 }
 
 export class WordleFilter {

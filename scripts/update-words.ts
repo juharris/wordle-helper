@@ -93,7 +93,7 @@ const sortWords = (validWords: ValidWords) => {
     })
 }
 
-async function main() {
+async function main(): Promise<void> {
     // TODO Update possible words using https://wordsrated.com/wordle-words and maybe somewhere else.
     // We're missing "MOMMY" and a few others.
     // Be fault tolerant and validate the numbers of words to ensure it's within a reasonable range.
@@ -101,9 +101,11 @@ async function main() {
     // Ensure each word only have 5 letters.
     await addUsedDates()
 
-    sortWords(validWords)
+    const newValidWords = validWords as ValidWords
+    sortWords(newValidWords)
 
-    saveWords(validWords)
+    newValidWords.lastUpdated = new Date().toISOString()
+    saveWords(newValidWords)
 }
 
 main()

@@ -31,12 +31,17 @@ npm install
 npm run dev
 ```
 
-> **Note:** Since tests can be co-located alongside other files inside the App Router, we have placed those tests in `app/` to demonstrate this behavior (which is different than `pages/`). You can still place all tests in `__tests__` if you prefer.
+Open [http://localhost:3000](http://localhost:3000) in your web browser to see the project.
 
 ## Running Tests
 
 ```bash
-npm test
+npm run test:ci
+```
+
+To automatically re-run tests when files change, run:
+```bash
+npm run test
 ```
 
 ## Updating Words
