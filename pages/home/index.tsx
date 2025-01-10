@@ -1,6 +1,9 @@
+'use client'
+
 import styles from '@/pages/index.module.css'
-import { WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter'
+import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from 'app/solver/filter'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import allValidWords from 'public/words.json'
 import { useEffect, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
@@ -15,7 +18,7 @@ const getInitialWordleState = (): WordleState => {
 }
 
 const areWordsOld = (): boolean => {
-  // Update the page if it's more than 4 days old.
+  // Check if the page is more than 4 days old.
   // The words should refresh every 2 days, but we'll give it a buffer in case an update fails;
   // otherwise, there would be a refresh loop.
   // A more robut implementation would not refresh the entire page and just get the latest words,
@@ -29,22 +32,46 @@ const areWordsOld = (): boolean => {
 }
 
 export default function Home(): JSX.Element {
-  const [enableRanking, setEnableRanking] = useState(false)
+  // Eagerly check the URL parameters to determine if ranking should be enabled.
+  let enableRankingDefault = false
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search)
+    enableRankingDefault = urlParams.get('rank') === 'true'
+  }
+
+  const router = useRouter()
+  const [enableRanking, setEnableRanking] = useState(enableRankingDefault)
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
   const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
 
-  // Initialize the candidates to all valid words.
+  // Update the page if it's more than a few days old.
   useEffect(() => {
-    // Update the page if it's more than 2 days old.
     if (areWordsOld()) {
       // Refresh the page to get the latest words.
       window.location.reload()
       return
     }
-
-    setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, enableRanking))
   }, [])
+
+  // Handle ranking toggling and the initial page load.
+  useEffect(() => {
+    // Handles initializing the possible solutions and updating them if ranking is toggled.
+    const possibleSolutions: ValidWords = filterResponse?.candidates ?
+      { words: filterResponse.candidates }
+      : allValidWords
+    setFilterResponse(wordleFilter.current.filter(wordleState, possibleSolutions, enableRanking))
+
+    // Update the URL to set the `rank` URL parameter.
+    const query = { ...router.query }
+    if (enableRanking) {
+      query.rank = 'true'
+    } else {
+      delete query.rank
+    }
+
+    router.replace({ pathname: router.pathname, query }, undefined, { shallow: true })
+  }, [enableRanking])
 
   if (!filterResponse) {
     // Let the effect call `setFilterResponse` before rendering.
@@ -198,7 +225,6 @@ export default function Home(): JSX.Element {
             title="Toggle ranking"
             type='button'
             onClick={() => {
-              setFilterResponse(wordleFilter.current.filter(wordleState, allValidWords, !enableRanking))
               setEnableRanking(!enableRanking)
             }}
           >
