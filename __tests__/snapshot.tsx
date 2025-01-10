@@ -4,6 +4,8 @@
 import { render } from '@testing-library/react';
 import Home from '@/pages/home/index';
 
+jest.mock('next/router', () => jest.requireActual('next-router-mock'))
+
 it("renders homepage unchanged", () => {
   const { container } = render(<Home />);
   // Skip because the snapshot is too big and will change often because of the new dates getting added.
