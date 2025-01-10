@@ -19,9 +19,9 @@ describe("WordleFilter", () => {
 
     test("empty", () => {
         const state: WordleState = {
-            known: [],
             banned: [],
-            hints: [],
+            hints: ["", "", "", "", ""],
+            known: ["", "", "", "", ""],
         }
         const response = wordleFilter.filter(state, validWords, true)
         expect(response.candidates.length).toBe(validWords.words.length)
@@ -73,12 +73,12 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "ADIEU",
-                    score: 70,
+                    score: 63.8,
                     s: []
                 },
                 {
                     w: "AUDIO",
-                    score: 70,
+                    score: 63.8,
                     s: []
                 },
             ]
@@ -169,27 +169,27 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "FRIED",
-                    score: 52,
-                    s: [],
-                },
-                {
-                    w: "FIRST",
-                    score: 48,
-                    s: [],
-                },
-                {
-                    w: "FRESH",
-                    score: 44,
-                    s: [],
-                },
-                {
-                    w: "FRUIT",
-                    score: 44,
+                    score: 54.5,
                     s: [],
                 },
                 {
                     w: "FREED",
-                    score: 40,
+                    score: 52.4,
+                    s: [],
+                },
+                {
+                    w: "FRESH",
+                    score: 51.4,
+                    s: [],
+                },
+                {
+                    w: "FRUIT",
+                    score: 48.9,
+                    s: [],
+                },
+                {
+                    w: "FIRST",
+                    score: 45.5,
                     s: [],
                 },
             ]
@@ -238,7 +238,7 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "STOIC",
-                    score: 60,
+                    score: 84.7,
                     s: [],
                 },
             ]
