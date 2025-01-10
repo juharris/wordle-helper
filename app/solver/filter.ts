@@ -31,7 +31,7 @@ export interface WordleSolutionCandidate {
     /**
      * A score to use for ranking candidates.
      * Higher scores are better.
-     * Range: `[0, 1]`.
+     * Range: `[0, 100]`.
      */
     score?: number
 }
@@ -49,7 +49,11 @@ export interface ValidWords {
 export class WordleFilter {
     private static assignScores = (candidates: WordleSolutionCandidate[], state: WordleState): void => {
         // FIXME "_L_RM" should give "ALARM" a score of 100.
+        const letterPositionWeight = 0.618
+        const letterFrequencyWeight = 1 - letterPositionWeight
         const letterFrequencies = new Map<string, number>()
+        const letterFrequenciesAtPositions: Map<string, number>[] = state.known
+            .map(() => new Map<string, number>())
         for (const candidate of candidates) {
             if (candidate.d) {
                 // Don't consider words that have been used.
@@ -69,11 +73,24 @@ export class WordleFilter {
                 const count = letterFrequencies.get(letter) || 0
                 letterFrequencies.set(letter, count + 1)
             }
+
+            let position = 0
+            for (const letter of word) {
+                const count = letterFrequenciesAtPositions[position].get(letter) || 0
+                letterFrequenciesAtPositions[position].set(letter, count + 1)
+                ++position
+            }
         }
 
-        // Normalize the frequencies.
+        // Normalize and weigh the frequencies.
         for (const [letter, frequency] of letterFrequencies) {
-            letterFrequencies.set(letter, frequency / candidates.length)
+            letterFrequencies.set(letter, letterFrequencyWeight * frequency / candidates.length)
+        }
+
+        for (const positionMap of letterFrequenciesAtPositions) {
+            for (const [letter, frequency] of positionMap) {
+                positionMap.set(letter, letterPositionWeight * frequency / candidates.length)
+            }
         }
 
         for (const candidate of candidates) {
@@ -96,7 +113,15 @@ export class WordleFilter {
                 score += letterFrequencies.get(letter)!
             }
 
-            candidate.score = Math.round(100 * (score / word.length))
+            let position = 0
+            for (const letter of word) {
+                score += letterFrequenciesAtPositions[position].get(letter)!
+                ++position
+            }
+
+            // Use a score between 0 and 100 for nice viewing, but keep 1 decimal place.
+            // Keep it as a number instead of a string to allow for more efficient sorting.
+            candidate.score = Math.round(1000 * (score / word.length)) / 10
         }
     }
 

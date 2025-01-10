@@ -238,6 +238,9 @@ export default function Home(): JSX.Element {
             itemData={filterResponse.candidates}
             itemSize={25}
             width={300}
+            // Ensure the list is updated when the candidates change,
+            // otherwise, scrolling may be required when the candidates do not change in size.
+            key={Math.random()}
           >
             {PossibleSolution}
           </FixedSizeList>
