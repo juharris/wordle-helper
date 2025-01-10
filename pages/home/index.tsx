@@ -32,6 +32,7 @@ const areWordsOld = (): boolean => {
 }
 
 export default function Home(): JSX.Element {
+  // Eagerly check the URL parameters to determine if ranking should be enabled.
   let enableRankingDefault = false
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search)
