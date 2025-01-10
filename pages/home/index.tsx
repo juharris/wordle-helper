@@ -18,7 +18,7 @@ const getInitialWordleState = (): WordleState => {
 }
 
 const areWordsOld = (): boolean => {
-  // Check if the page if it's more than 4 days old.
+  // Check if the page is more than 4 days old.
   // The words should refresh every 2 days, but we'll give it a buffer in case an update fails;
   // otherwise, there would be a refresh loop.
   // A more robut implementation would not refresh the entire page and just get the latest words,
