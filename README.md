@@ -7,11 +7,12 @@ Try it [here](https://juharris.github.io/wordle-helper/home).
 
 To avoid spoilers, the page will not show if a word was a solution from the last few days.
 
-Date sources:
+Data sources:
 * Past solutions:
   * https://www.fiveforks.com/wordle
 * Possible solutions:
   * https://wordsrated.com/wordle-words
+  * Seen when using the app.
   * TODO: Need more.
 
 # Development
@@ -31,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your web browser to see the project.
+Open [localhost:3000/home](http://localhost:3000/home) in your web browser to see the project.
 
 ## Running Tests
 
