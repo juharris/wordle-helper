@@ -40,19 +40,11 @@ export default function Home(): JSX.Element {
   }
 
   const router = useRouter()
+  const [areWordsOldState, setAreWordsOldState] = useState(areWordsOld())
   const [enableRanking, setEnableRanking] = useState(enableRankingDefault)
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
   const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
-
-  // Update the page if it's more than a few days old.
-  useEffect(() => {
-    if (areWordsOld()) {
-      // Refresh the page to get the latest words.
-      window.location.reload()
-      return
-    }
-  }, [])
 
   // Handle ranking toggling and the initial page load.
   useEffect(() => {
@@ -87,6 +79,11 @@ export default function Home(): JSX.Element {
       // A restriction was removed so filter from the full list of words.
       setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords, enableRanking))
     }
+  }
+
+  const handleReset = () => {
+    setAreWordsOldState(areWordsOld())
+    updateCandidates(false, getInitialWordleState())
   }
 
   let numUnusedSolutions = 0
@@ -172,6 +169,12 @@ export default function Home(): JSX.Element {
           Wordle Helper
         </h1>
 
+        {areWordsOldState &&
+          <div>
+            ⚠️ The words are more than a few days old. Please refresh the page to get the latest words.
+          </div>
+          }
+
         <div className={styles.grid}>
           <div className={styles.inputsSection}>
             <div>
@@ -199,7 +202,7 @@ export default function Home(): JSX.Element {
             <button className={styles.resetButton}
               title="Reset all inputs"
               type='button'
-              onClick={() => updateCandidates(false, getInitialWordleState())}
+              onClick={handleReset}
             >
               🗑️
             </button>
