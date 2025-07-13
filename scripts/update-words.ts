@@ -4,6 +4,9 @@ import * as fs from 'fs'
 import { NodeType, parse } from 'node-html-parser'
 import validWords from '../public/words.json'
 
+// Configure axios defaults to be more browser-like
+axios.defaults.headers.common['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+
 const addUsedDates = async () => {
     const usedWords = await getUsedWords()
     for (const word of (validWords as ValidWords).words) {
@@ -34,7 +37,17 @@ const getUsedWords = async (): Promise<Map<string, string>> => {
     const result = new Map<string, string>()
     console.log(`Fetching '${url}'...`)
     try {
-        const response = await axios.get(url)
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            },
+            timeout: 10000
+        })
         const html = response.data
         const root = parse(html);
 
