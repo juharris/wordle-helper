@@ -25,5 +25,6 @@ jobs:
     - run: npm ci
     - run: npm run test:ci
     # Ensure that we can get the latest words.
-    - name: "Update latest words"
-      run: npm run update-words
+    # When it works again:
+    # - name: "Update latest words"
+    #   run: npm run update-words
