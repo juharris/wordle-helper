@@ -4,9 +4,6 @@ import * as fs from 'fs'
 import { NodeType, parse } from 'node-html-parser'
 import validWords from '../public/words.json'
 
-// Configure axios defaults to be more browser-like
-axios.defaults.headers.common['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-
 const addUsedDates = async () => {
     const usedWords = await getUsedWords()
     for (const word of (validWords as ValidWords).words) {
@@ -42,24 +39,22 @@ const getUsedWords = async (): Promise<Map<string, string>> => {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                 'Accept-Language': 'en-US,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache',
-                'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-                'Sec-Ch-Ua-Mobile': '?0',
-                'Sec-Ch-Ua-Platform': '"Linux"',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
                 'Sec-Fetch-Dest': 'document',
                 'Sec-Fetch-Mode': 'navigate',
                 'Sec-Fetch-Site': 'none',
                 'Sec-Fetch-User': '?1',
-                'Upgrade-Insecure-Requests': '1',
-                'Referer': 'https://www.google.com/'
+                'Referer': 'https://www.google.com/',
+                'DNT': '1',
+                'Sec-GPC': '1'
             },
             timeout: 15000,
             maxRedirects: 5,
-            validateStatus: function (status) {
-                return status >= 200 && status < 300; // default
-            }
+            decompress: true,
+            responseType: 'text'
         })
         const html = response.data
         const root = parse(html);
