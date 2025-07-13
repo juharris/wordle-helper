@@ -8,9 +8,10 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-  schedule:
+  # Disable because the source block GitHub Actions from updating the words.
+  # schedule:
     # Every two days at 20:17
-    - cron: "17 20 */2 * *"
+    # - cron: "17 20 */2 * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
