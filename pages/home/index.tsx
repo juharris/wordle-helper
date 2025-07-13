@@ -18,6 +18,9 @@ const getInitialWordleState = (): WordleState => {
 }
 
 const areWordsOld = (): boolean => {
+  // Disable because to source blocks GitHub Actions from updating the words.
+  return false
+  /*
   // Check if the page is more than 4 days old.
   // The words should refresh every 2 days, but we'll give it a buffer in case an update fails;
   // otherwise, there would be a refresh loop.
@@ -29,6 +32,7 @@ const areWordsOld = (): boolean => {
   const dateResetThreshold = new Date()
   dateResetThreshold.setDate(dateResetThreshold.getDate() - 4)
   return new Date(allValidWords.lastUpdated) < dateResetThreshold
+  */
 }
 
 export default function Home(): JSX.Element {
