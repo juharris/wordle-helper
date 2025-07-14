@@ -43,9 +43,9 @@ const getUsedWords = async (): Promise<Map<string, string>> => {
             throw new Error(`Could not find element with ID 'chronlist'.`)
         }
 
-        // Skip recent entries from the last 3 days to avoid revealing spoilers.
+        // Skip recent entries from the last 1 day to avoid revealing spoilers.
         const thresholdDate = new Date()
-        thresholdDate.setDate(thresholdDate.getDate() - 3)
+        thresholdDate.setDate(thresholdDate.getDate() - 1)
 
         for (const child of words.childNodes) {
             if (child.nodeType !== NodeType.TEXT_NODE) {
