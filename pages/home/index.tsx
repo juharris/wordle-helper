@@ -102,6 +102,7 @@ export default function Home(): JSX.Element {
   for (let i = 0; i < numLetters; ++i) {
     hintInputs.push(
       <input type='text' key={i}
+        id={`hint-${i}`}
         aria-label={`Hint for letter ${i + 1}`}
         autoComplete='off'
         className={`${styles.wordleLetters} ${styles.hints} ${styles.oneFifth}`}
@@ -115,6 +116,26 @@ export default function Home(): JSX.Element {
           }
           const isMoreRestrictive = hints[i].length > wordleState.hints[i].length
           updateCandidates(isMoreRestrictive, newWordleState)
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Backspace' && !wordleState.hints[i]) {
+            // If backspace is pressed on an empty input, focus the previous input and delete its last character.
+            const prevIndex = i - 1
+            if (prevIndex >= 0) {
+              e.preventDefault()
+              const { hints } = wordleState
+              hints[prevIndex] = hints[prevIndex].slice(0, -1)
+              const newWordleState = {
+                ...wordleState,
+                hints,
+              }
+              updateCandidates(false, newWordleState)
+              const prevInput = document.getElementById(`hint-${prevIndex}`)
+              if (prevInput instanceof HTMLInputElement) {
+                prevInput.focus()
+              }
+            }
+          }
         }}
       />
     )
@@ -151,6 +172,26 @@ export default function Home(): JSX.Element {
               const nextInput = document.getElementById(`known-${nextIndex}`)
               if (nextInput instanceof HTMLInputElement) {
                 nextInput.focus()
+              }
+            }
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Backspace' && !wordleState.known[i]) {
+            // If backspace is pressed on an empty input, focus the previous input and delete its last character
+            const prevIndex = i - 1
+            if (prevIndex >= 0) {
+              e.preventDefault()
+              const { known } = wordleState
+              known[prevIndex] = known[prevIndex].slice(0, -1)
+              const newWordleState = {
+                ...wordleState,
+                known,
+              }
+              updateCandidates(false, newWordleState)
+              const prevInput = document.getElementById(`known-${prevIndex}`)
+              if (prevInput instanceof HTMLInputElement) {
+                prevInput.focus()
               }
             }
           }
