@@ -48,7 +48,12 @@ export interface ValidWords {
 
 export class WordleFilter {
     private static assignScores = (candidates: WordleSolutionCandidate[], state: WordleState): void => {
-        // FIXME "_L_RM" should give "ALARM" a score of 100.
+        const unusedCandidateCount = candidates.filter(c => c.d === undefined).length
+        if (unusedCandidateCount === 0) {
+            // All candidates have been used, avoid division by zero.
+            return
+        }
+
         const letterPositionWeight = 0.618
         const letterFrequencyWeight = 1 - letterPositionWeight
         const letterFrequencies = new Map<string, number>()
@@ -84,12 +89,12 @@ export class WordleFilter {
 
         // Normalize and weigh the frequencies.
         for (const [letter, frequency] of letterFrequencies) {
-            letterFrequencies.set(letter, letterFrequencyWeight * frequency / candidates.length)
+            letterFrequencies.set(letter, letterFrequencyWeight * frequency / unusedCandidateCount)
         }
 
         for (const positionMap of letterFrequenciesAtPositions) {
             for (const [letter, frequency] of positionMap) {
-                positionMap.set(letter, letterPositionWeight * frequency / candidates.length)
+                positionMap.set(letter, letterPositionWeight * frequency / unusedCandidateCount)
             }
         }
 
