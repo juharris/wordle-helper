@@ -8,10 +8,9 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-  # Disable because the source block GitHub Actions from updating the words.
-  # schedule:
+  schedule:
     # Every two days at 20:17
-    # - cron: "17 20 */2 * *"
+    - cron: "17 20 */2 * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -77,9 +76,8 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-      # When it works again:
-      # - name: "Update latest words"
-      #   run: ${{ steps.detect-package-manager.outputs.manager }} run update-words
+      - name: "Update latest words"
+        run: ${{ steps.detect-package-manager.outputs.manager }} run update-words
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.manager }} run build
       - name: Upload artifact
