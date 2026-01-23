@@ -1,76 +1,70 @@
 import { ValidWords } from 'app/solver/filter'
 import axios from 'axios'
 import * as fs from 'fs'
-import { NodeType, parse } from 'node-html-parser'
 import validWords from '../public/words.json'
 
 const addUsedDates = async () => {
-    const usedWords = await getUsedWords()
-    for (const word of (validWords as ValidWords).words) {
-        if (word.d) {
-            usedWords.delete(word.w)
-            continue
-        }
-        const date = usedWords.get(word.w)
-        if (date) {
-            console.log(`Adding date "${date}" to word "${word.w}".`)
-            word.d = date
-            usedWords.delete(word.w)
-        }
+    const words = validWords as ValidWords
+
+    if (!words.lastUpdated) {
+        throw new Error('words.lastUpdated is not set in words.json')
     }
 
-    for (const [word, date] of usedWords.entries()) {
-        if (!isValidWord(word)) {
-            console.warn(`Ignoring invalid previous solution "${word}".`)
-            continue
+    // Determine the start date (day after lastUpdated)
+    const startDate = new Date(words.lastUpdated)
+    // Start from the day after last update
+    startDate.setDate(startDate.getDate() + 1)
+
+    // End date is yesterday (to avoid spoilers for today)
+    const endDate = new Date()
+    endDate.setDate(endDate.getDate() - 1)
+    endDate.setHours(0, 0, 0, 0)
+    startDate.setHours(0, 0, 0, 0)
+
+    console.log(`Fetching Wordle answers from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}...`)
+
+    // Fetch each day's answer from NYT API
+    for (let currentDate = new Date(startDate); currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+        // YYYY-MM-DD format
+        const dateString = currentDate.toISOString().split('T')[0]
+        const word = await getWordleAnswer(dateString)
+
+        if (word) {
+            // Check if word already exists
+            const existingWord = words.words.find(w => w.w === word)
+            if (existingWord) {
+                if (!existingWord.d) {
+                    console.log(`Adding date "${dateString}" to existing word "${word}".`)
+                    existingWord.d = dateString
+                }
+            } else {
+                console.log(`Adding new word "${word}" with date "${dateString}".`)
+                words.words.push({ w: word, s: ['nyt'], d: dateString })
+            }
         }
-        console.log(`Adding previous solution "${word}" with date "${date}".`)
-        validWords.words.push({ w: word, s: ['fiveforks'], d: date })
     }
 }
 
-const getUsedWords = async (): Promise<Map<string, string>> => {
-    const url = 'https://www.fiveforks.com/wordle'
-    const result = new Map<string, string>()
-    console.log(`Fetching '${url}'...`)
+const getWordleAnswer = async (dateString: string): Promise<string | null> => {
+    const url = `https://www.nytimes.com/svc/wordle/v2/${dateString}.json`
     try {
         const response = await axios.get(url)
-        const html = response.data
-        const root = parse(html);
-
-        const words = root.querySelector('#chronlist')
-        if (!words) {
-            throw new Error(`Could not find element with ID 'chronlist'.`)
+        const word = response.data.solution
+        if (word && isValidWord(word)) {
+            const upperWord = word.toUpperCase()
+            console.log(`Fetched "${upperWord}" for ${dateString}`)
+            return upperWord
         }
-
-        // Skip recent entries from the last 1 day to avoid revealing spoilers.
-        const thresholdDate = new Date()
-        thresholdDate.setDate(thresholdDate.getDate() - 1)
-
-        for (const child of words.childNodes) {
-            if (child.nodeType !== NodeType.TEXT_NODE) {
-                continue
-            }
-            const entry = child.textContent.trim()
-            const [word, _num, mdy] = entry.split(' ')
-            const [month, day, year] = mdy.split('/')
-            const yearInt = 2000 + parseInt(year)
-            const monthInt = parseInt(month) - 1
-            const dayInt = parseInt(day)
-            const date = new Date(yearInt, monthInt, dayInt)
-            if (date > thresholdDate) {
-                continue
-            }
-            const dateString = `${yearInt}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-
-            result.set(word, dateString)
-        }
+        return null
     } catch (error) {
-        console.error(`Error fetching or parsing HTML from '${url}'.`, error);
-        throw error
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            // No Wordle for this date (likely before Wordle started or in the future)
+            console.log(`No Wordle answer found for ${dateString}`)
+        } else {
+            console.error(`Error fetching Wordle answer for ${dateString}:`, error)
+        }
+        return null
     }
-
-    return result
 }
 
 const isValidWord = (word: string): boolean => {

@@ -10,6 +10,7 @@ To avoid spoilers, the page will not show if a word was a solution from the last
 Data sources:
 * Past solutions:
   * https://www.fiveforks.com/wordle
+  * NYT API: `https://www.nytimes.com/svc/wordle/v2/{date}.json`
 * Possible solutions:
   * https://wordsrated.com/wordle-words
   * Seen when using the app.
