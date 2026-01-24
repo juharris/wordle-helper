@@ -6,20 +6,29 @@ import validWords from '../public/words.json'
 const addUsedDates = async () => {
     const words = validWords as ValidWords
 
-    if (!words.lastUpdated) {
-        throw new Error('words.lastUpdated is not set in words.json')
+    // Find the latest used date from existing words
+    const datesInWords = words.words
+        .filter(w => w.d)
+        .map(w => new Date(w.d!))
+
+    if (datesInWords.length === 0) {
+        throw new Error('No dates found in words.')
     }
 
-    // Determine the start date (day after lastUpdated)
-    const startDate = new Date(words.lastUpdated)
-    // Start from the day after last update
+    // Determine the start date (day after latest date)
+    const latestDate = datesInWords.reduce((max, date) => date > max ? date : max)
+    const startDate = new Date(latestDate)
     startDate.setDate(startDate.getDate() + 1)
 
     // End date is yesterday (to avoid spoilers for today)
     const endDate = new Date()
     endDate.setDate(endDate.getDate() - 1)
     endDate.setHours(0, 0, 0, 0)
-    startDate.setHours(0, 0, 0, 0)
+
+    if (startDate >= endDate) {
+        console.log("No new dates to fetch.")
+        return
+    }
 
     console.log(`Fetching Wordle answers from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}...`)
 
@@ -52,14 +61,13 @@ const getWordleAnswer = async (dateString: string): Promise<string | null> => {
         const word = response.data.solution
         if (word && isValidWord(word)) {
             const upperWord = word.toUpperCase()
-            console.log(`Fetched "${upperWord}" for ${dateString}`)
             return upperWord
         }
         return null
     } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
             // No Wordle for this date (likely before Wordle started or in the future)
-            console.log(`No Wordle answer found for ${dateString}`)
+            console.error(`No Wordle answer found for ${dateString}`)
         } else {
             console.error(`Error fetching Wordle answer for ${dateString}:`, error)
         }
