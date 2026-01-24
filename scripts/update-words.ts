@@ -7,16 +7,17 @@ const addUsedDates = async () => {
     const words = validWords as ValidWords
 
     // Find the latest used date from existing words
-    const datesInWords = words.words
-        .filter(w => w.d)
-        .map(w => new Date(w.d!))
+    const latestDate = words.words.reduce((max: Date | null, word) => {
+        if (!word.d) return max
+        const date = new Date(word.d)
+        return !max || date > max ? date : max
+    }, null)
 
-    if (datesInWords.length === 0) {
+    if (!latestDate) {
         throw new Error('No dates found in words.')
     }
 
     // Determine the start date (day after latest date)
-    const latestDate = datesInWords.reduce((max, date) => date > max ? date : max)
     const startDate = new Date(latestDate)
     startDate.setDate(startDate.getDate() + 1)
 
