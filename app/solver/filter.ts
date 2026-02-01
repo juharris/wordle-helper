@@ -52,6 +52,7 @@ export class WordleFilter {
      * This is needed because new Date("2026-01-31") parses as UTC midnight,
      * but Wordle changes at midnight in the user's local timezone.
      */
+    // TODO Optimization: Use this method less and work with `Date`s in the data.
     public static parseLocalDate = (dateString: string): Date => {
         const [year, month, day] = dateString.split('-')
         return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10))
