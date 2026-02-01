@@ -49,6 +49,7 @@ export default function Home(): JSX.Element {
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
   const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
+  const [todaySolution, setTodaySolution] = useState<{ date: string; word: string } | null>(null)
 
   // Handle ranking toggling and the initial page load.
   useEffect(() => {
@@ -83,6 +84,70 @@ export default function Home(): JSX.Element {
       // A restriction was removed so filter from the full list of words.
       setFilterResponse(wordleFilter.current.filter(newWordleState, allValidWords, enableRanking))
     }
+  }
+
+  const getTodayDateString = (): string => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  const getTodaySolution = (): string | null => {
+    const dateString = getTodayDateString()
+
+    // Check if we already have today's solution in memory
+    if (todaySolution && todaySolution.date === dateString) {
+      return todaySolution.word
+    }
+
+    // Find today's word from the local data
+    const validWords = allValidWords as ValidWords
+    const todayWord = validWords.words.find(w => w.d === dateString)
+
+    if (todayWord) {
+      setTodaySolution({ date: dateString, word: todayWord.w })
+      return todayWord.w
+    }
+
+    return null
+  }
+
+  const tryWordAgainstToday = (word: string) => {
+    const solution = getTodaySolution()
+    if (!solution) {
+      alert('Today\'s solution is not available in the data yet.')
+      return
+    }
+
+    // Compare word with solution and merge with existing state
+    const newKnown: string[] = [...wordleState.known]
+    const newHints: string[] = [...wordleState.hints]
+    const bannedSet = new Set<string>(wordleState.banned)
+
+    for (let i = 0; i < 5; ++i) {
+      if (word[i] === solution[i]) {
+        // Mark correct letter.
+        newKnown[i] = word[i]
+      } else if (solution.includes(word[i])) {
+        // Letter is in the word but not at this position.
+        if (!newHints[i].includes(word[i])) {
+          newHints[i] += word[i]
+        }
+      } else {
+        // Letter is not in the word at all.
+        bannedSet.add(word[i])
+      }
+    }
+
+    const newWordleState: WordleState = {
+      known: newKnown,
+      hints: newHints,
+      banned: Array.from(bannedSet),
+    }
+
+    updateCandidates(true, newWordleState)
   }
 
   const handleReset = () => {
@@ -204,9 +269,7 @@ export default function Home(): JSX.Element {
     <div className={styles.container}>
       <Head>
         <title>Wordle Helper</title>
-        {/* TODO Add new favicon.
-        <link rel='icon' href='/favicon.ico' />
-        */}
+        <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
       </Head>
 
       <main>
@@ -218,7 +281,7 @@ export default function Home(): JSX.Element {
           <div>
             ⚠️ The words are more than a few days old. Please refresh the page to get the latest words.
           </div>
-          }
+        }
 
         <div className={styles.grid}>
           <div className={styles.inputsSection}>
@@ -283,7 +346,7 @@ export default function Home(): JSX.Element {
             className={styles.possibleSolutionsList}
             height={520}
             itemCount={filterResponse.candidates.length}
-            itemData={filterResponse.candidates}
+            itemData={{ candidates: filterResponse.candidates, onTryWord: tryWordAgainstToday }}
             itemSize={25}
             width={300}
             // Ensure the list is updated when the candidates change,

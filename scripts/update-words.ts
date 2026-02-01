@@ -21,10 +21,10 @@ const addUsedDates = async () => {
     const startDate = new Date(latestDate)
     startDate.setDate(startDate.getDate() + 1)
 
-    // End date is yesterday (to avoid spoilers for today)
+    // End date is a few days ahead to get data in advance.
+    // We won't show recent data in the UI.
     const endDate = new Date()
-    endDate.setDate(endDate.getDate() - 1)
-    endDate.setHours(0, 0, 0, 0)
+    endDate.setDate(endDate.getDate() + 5)
 
     if (startDate >= endDate) {
         console.log("No new dates to fetch.")

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="wordleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6aaa64;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c9b458;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Circle with gradient -->
+  <circle cx="96" cy="96" r="80" fill="url(#wordleGradient)"/>
+  
+  <!-- Question mark -->
+  <text x="96" y="135" font-family="Arial, sans-serif" font-size="110" font-weight="bold" fill="#fff" text-anchor="middle">?</text>
+</svg>

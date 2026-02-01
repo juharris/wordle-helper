@@ -47,8 +47,32 @@ export interface ValidWords {
 }
 
 export class WordleFilter {
+    /**
+     * Parse a date string (YYYY-MM-DD) as a local date at midnight.
+     * This is needed because new Date("2026-01-31") parses as UTC midnight,
+     * but Wordle changes at midnight in the user's local timezone.
+     */
+    // TODO Optimization: Use this method less and work with `Date`s in the data.
+    public static parseLocalDate = (dateString: string): Date => {
+        const [year, month, day] = dateString.split('-')
+        return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10))
+    }
+
+    /**
+     * Get today at midnight in local time.
+     * Used to determine which words have already been used (any date before today).
+     */
+    public static getTodayMidnight = (): Date => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        return today
+    }
+
     private static assignScores = (candidates: WordleSolutionCandidate[], state: WordleState): void => {
-        const unusedCandidateCount = candidates.filter(c => c.d === undefined).length
+        const today = WordleFilter.getTodayMidnight()
+        const unusedCandidateCount = candidates
+            .filter(c => c.d === undefined || WordleFilter.parseLocalDate(c.d) >= today)
+            .length
         if (unusedCandidateCount === 0) {
             // All candidates have been used, avoid division by zero.
             return
@@ -61,8 +85,11 @@ export class WordleFilter {
             .map(() => new Map<string, number>())
         for (const candidate of candidates) {
             if (candidate.d) {
-                // Don't consider words that have been used.
-                continue
+                // Skip words that were used in the past.
+                const candidateDate = WordleFilter.parseLocalDate(candidate.d)
+                if (candidateDate < today) {
+                    continue
+                }
             }
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
@@ -100,8 +127,11 @@ export class WordleFilter {
 
         for (const candidate of candidates) {
             if (candidate.d) {
-                // Don't consider words that have been used.
-                continue
+                const candidateDate = WordleFilter.parseLocalDate(candidate.d)
+                if (candidateDate < today) {
+                    // Skip words that were used in the past.
+                    continue
+                }
             }
             const { w: word } = candidate
             // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
@@ -202,18 +232,35 @@ export class WordleFilter {
     }
 
     private static sortCandidates = (candidates: WordleSolutionCandidate[]): void => {
+        const today = WordleFilter.getTodayMidnight()
         const locale = 'en'
         // Sort by date, then by score, then by word.
         candidates.sort((c1, c2) => {
-            if (c1.d && c2.d) {
+            // Only consider dates that are before today (i.e., already used).
+            let c1Date = null
+            if (c1.d) {
+                const date = WordleFilter.parseLocalDate(c1.d)
+                if (date < today) {
+                    c1Date = date
+                }
+            }
+            let c2Date = null
+            if (c2.d) {
+                const date = WordleFilter.parseLocalDate(c2.d)
+                if (date < today) {
+                    c2Date = date
+                }
+            }
+
+            if (c1Date && c2Date) {
                 // All dates should be unique, so we don't need to compare them.
                 if (c1.score !== undefined && c2.score !== undefined && c1.score !== c2.score) {
                     return c2.score - c1.score
                 }
                 return c1.w.localeCompare(c2.w, locale)
-            } else if (c1.d) {
+            } else if (c1Date) {
                 return 1
-            } else if (c2.d) {
+            } else if (c2Date) {
                 return -1
             }
 
