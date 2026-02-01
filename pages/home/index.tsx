@@ -276,9 +276,7 @@ export default function Home(): JSX.Element {
     <div className={styles.container}>
       <Head>
         <title>Wordle Helper</title>
-        {/* TODO Add new favicon.
-        <link rel='icon' href='/favicon.ico' />
-        */}
+        <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
       </Head>
 
       <main>
