@@ -128,7 +128,7 @@ export default function Home(): JSX.Element {
 
     for (let i = 0; i < 5; ++i) {
       if (word[i] === solution[i]) {
-      // Mark correct letter.
+        // Mark correct letter.
         newKnown[i] = word[i]
       } else if (solution.includes(word[i])) {
         // Letter is in the word but not at this position.
