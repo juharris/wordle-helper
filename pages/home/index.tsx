@@ -155,9 +155,10 @@ export default function Home(): JSX.Element {
     updateCandidates(false, getInitialWordleState())
   }
 
+  const today = WordleFilter.getTodayMidnight()
   let numUnusedSolutions = 0
   for (const candidate of filterResponse.candidates) {
-    if (candidate.d === undefined) {
+    if (candidate.d === undefined || WordleFilter.parseLocalDate(candidate.d) >= today) {
       ++numUnusedSolutions
     }
   }
