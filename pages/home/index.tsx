@@ -96,7 +96,7 @@ export default function Home(): JSX.Element {
 
   const getTodaySolution = (): string | null => {
     const dateString = getTodayDateString()
-    
+
     // Check if we already have today's solution in memory
     if (todaySolution && todaySolution.date === dateString) {
       return todaySolution.word
@@ -105,12 +105,12 @@ export default function Home(): JSX.Element {
     // Find today's word from the local data
     const validWords = allValidWords as ValidWords
     const todayWord = validWords.words.find(w => w.d === dateString)
-    
+
     if (todayWord) {
       setTodaySolution({ date: dateString, word: todayWord.w })
       return todayWord.w
     }
-    
+
     return null
   }
 
@@ -126,25 +126,18 @@ export default function Home(): JSX.Element {
     const newHints: string[] = [...wordleState.hints]
     const bannedSet = new Set<string>(wordleState.banned)
 
-    // First pass: mark correct letters (green)
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; ++i) {
       if (word[i] === solution[i]) {
+      // Mark correct letter.
         newKnown[i] = word[i]
-      }
-    }
-
-    // Second pass: mark letters that are in the word but in wrong position (yellow)
-    for (let i = 0; i < 5; i++) {
-      if (word[i] !== solution[i]) {
-        if (solution.includes(word[i])) {
-          // Letter is in the word but not at this position
-          if (!newHints[i].includes(word[i])) {
-            newHints[i] += word[i]
-          }
-        } else {
-          // Letter is not in the word at all
-          bannedSet.add(word[i])
+      } else if (solution.includes(word[i])) {
+        // Letter is in the word but not at this position.
+        if (!newHints[i].includes(word[i])) {
+          newHints[i] += word[i]
         }
+      } else {
+        // Letter is not in the word at all.
+        bannedSet.add(word[i])
       }
     }
 
@@ -288,7 +281,7 @@ export default function Home(): JSX.Element {
           <div>
             ⚠️ The words are more than a few days old. Please refresh the page to get the latest words.
           </div>
-          }
+        }
 
         <div className={styles.grid}>
           <div className={styles.inputsSection}>
