@@ -98,7 +98,7 @@ const sortWords = (validWords: ValidWords) => {
 
 async function main(): Promise<void> {
     // TODO Update possible words using https://wordsrated.com/wordle-words and maybe somewhere else.
-    // We're missing "MOMMY" and a few others.
+    // We were missing "MOMMY" and a few others.
     // Be fault tolerant and validate the numbers of words to ensure it's within a reasonable range.
     // Ensure a few known words are in the list.
     // Ensure each word only have 5 letters.
