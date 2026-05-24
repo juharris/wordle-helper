@@ -1,9 +1,15 @@
 import fs from 'fs'
 import { ValidWords, WordleFilter, WordleFilterResponse, WordleState } from '../../app/solver/filter'
+import allValidWords from '__tests__/test_data/valid_words.json'
 
 describe("WordleFilter", () => {
-    const validWords: ValidWords = JSON.parse(fs.readFileSync('__tests__/test_data/valid_words.json', { encoding: 'utf-8' }))
     const wordleFilter = new WordleFilter()
+    let validWords: ValidWords
+
+    beforeEach(() => {
+        // Deep copy to prevent mutation during tests
+        validWords = JSON.parse(JSON.stringify(allValidWords))
+    })
 
     test("empty", () => {
         const state: WordleState = {
@@ -27,6 +33,45 @@ describe("WordleFilter", () => {
         expect(response.candidates.length).toBe(validWords.words.length)
         expect(Object.is(response.candidates, validWords.words)).toBe(false)
     })
+
+    test("exact - 1 solution", () => {
+        const state: WordleState = {
+            banned: [],
+            hints: ["", "", "", "", ""],
+            known: ["F", "R", "U", "I", "T"],
+        }
+        const response = wordleFilter.filter(state, validWords, true)
+        const expectedResponse: WordleFilterResponse = {
+            candidates: [
+                {
+                    w: "FRUIT",
+                    score: 100,
+                    s: []
+                }
+            ]
+        }
+        expect(response).toStrictEqual(expectedResponse)
+    })
+
+    test("exact - 1 solution - duplicate letters", () => {
+        const state: WordleState = {
+            banned: [],
+            hints: ["", "", "", "", ""],
+            known: ["C", "O", "R", "E", "R"],
+        }
+        const response = wordleFilter.filter(state, validWords, true)
+        const expectedResponse: WordleFilterResponse = {
+            candidates: [
+                {
+                    w: "CORER",
+                    score: 100,
+                    s: []
+                }
+            ]
+        }
+        expect(response).toStrictEqual(expectedResponse)
+    })
+
 
     test("simple", () => {
         const state: WordleState = {
@@ -73,12 +118,12 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "ADIEU",
-                    score: 63.8,
+                    score: 56.2,
                     s: []
                 },
                 {
                     w: "AUDIO",
-                    score: 63.8,
+                    score: 56.2,
                     s: []
                 },
             ]
@@ -169,27 +214,27 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "FRIED",
-                    score: 54.5,
+                    score: 46.8,
                     s: [],
                 },
                 {
                     w: "FREED",
-                    score: 52.4,
+                    score: 44.7,
                     s: [],
                 },
                 {
                     w: "FRESH",
-                    score: 51.4,
+                    score: 43.8,
                     s: [],
                 },
                 {
                     w: "FRUIT",
-                    score: 48.9,
+                    score: 41.3,
                     s: [],
                 },
                 {
                     w: "FIRST",
-                    score: 45.5,
+                    score: 37.9,
                     s: [],
                 },
             ]
@@ -214,6 +259,39 @@ describe("WordleFilter", () => {
             candidates: [
                 {
                     w: "STOIC",
+                    s: [],
+                },
+            ]
+        }
+        expect(response).toStrictEqual(expectedResponse)
+    })
+
+    test("Multiple known with duplicates letter", () => {
+        const state: WordleState = {
+            known: ["F", "R", "E", "", ""],
+            banned: [],
+            hints: [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
+        }
+        const enableRanking = true
+        const response = wordleFilter.filter(state, validWords, enableRanking)
+        // They should have the same score because they have distinct remaining letters and the same number of them.
+        const expectScore = 57.1
+        const expectedResponse: WordleFilterResponse = {
+            candidates: [
+                {
+                    w: "FREED",
+                    score: expectScore,
+                    s: [],
+                },
+                {
+                    w: "FRESH",
+                    score: expectScore,
                     s: [],
                 },
             ]
