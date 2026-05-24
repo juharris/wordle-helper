@@ -43,6 +43,7 @@ export default function Home(): JSX.Element {
   const [areWordsOldState, setAreWordsOldState] = useState(areWordsOld())
   const [enableRanking, setEnableRanking] = useState(enableRankingDefault)
   const [wordleState, setWordleState] = useState<WordleState>(getInitialWordleState())
+  const [guessWord, setGuessWord] = useState("")
   const wordleFilter = useRef(new WordleFilter())
   const [filterResponse, setFilterResponse] = useState<WordleFilterResponse | undefined>(undefined)
   const [todaySolution, setTodaySolution] = useState<{ date: string; word: string } | null>(null)
@@ -148,7 +149,19 @@ export default function Home(): JSX.Element {
 
   const handleReset = () => {
     setAreWordsOldState(areWordsOld())
+    setGuessWord("")
     updateCandidates(false, getInitialWordleState())
+  }
+
+  const handleGuessSubmit = () => {
+    const normalizedGuess = guessWord.trim().toUpperCase()
+    if (!/^[A-Z]{5}$/.test(normalizedGuess)) {
+      alert('Enter a 5-letter word.')
+      return
+    }
+
+    tryWordAgainstToday(normalizedGuess)
+    setGuessWord("")
   }
 
   const today = WordleFilter.getTodayMidnight()
@@ -262,6 +275,40 @@ export default function Home(): JSX.Element {
     )
   }
 
+  // Input box for typing a word and upon submission,
+  // the state is updated as if that word was tried against today's solution.
+  const guessSection = (<>
+    <div className={styles.grid}>
+      Guess:
+      <input type='text'
+        id='guess-input'
+        aria-label='Guess word'
+        autoComplete='off'
+        className={`${styles.wordleLetters} ${styles.guess}`}
+        value={guessWord}
+        minLength={5}
+        maxLength={5}
+        onChange={(e) => {
+          const lettersOnly = e.target.value.toUpperCase().replace(/[^A-Z]/g, '')
+          setGuessWord(lettersOnly)
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            handleGuessSubmit()
+          }
+        }}
+      />
+      <button className={styles.resetButton}
+        title="Apply guess"
+        type='button'
+        onClick={handleGuessSubmit}
+      >
+        ➤
+      </button>
+    </div>
+  </>)
+
   return (
     <div className={styles.container}>
       <Head>
@@ -326,6 +373,10 @@ export default function Home(): JSX.Element {
           <div className={styles.grid}>
             {knownInputs}
           </div>
+        </div>
+
+        <div className={styles.inputsSection}>
+          {guessSection}
         </div>
 
         <div className={styles.possibleSolutions}>

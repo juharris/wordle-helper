@@ -67,6 +67,12 @@ input.banned {
   background-color: #787c7e;
 }
 
+input.guess {
+  background-color: #eeeeee;
+  color: #2c2c2c;
+  max-width: 8rem;
+}
+
 input.hints {
   background-color: #c9b458;
 }
