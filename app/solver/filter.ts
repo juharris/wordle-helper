@@ -92,16 +92,8 @@ export class WordleFilter {
                 }
             }
             const { w: word } = candidate
-            // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
-            const letters = new Set(word.split(''))
+            const letters = WordleFilter.lettersToConsiderForScore(word, state)
             for (const letter of letters) {
-                if (state.hints.some(hint => hint.includes(letter))) {
-                    // Skip letters that are in hints because all words will have them.
-                    continue
-                }
-                if (state.known.some((known, index) => known === letter && word[index] !== letter)) {
-                    continue
-                }
                 const count = letterFrequencies.get(letter) || 0
                 letterFrequencies.set(letter, count + 1)
             }
@@ -134,17 +126,15 @@ export class WordleFilter {
                 }
             }
             const { w: word } = candidate
-            // Only consider each letter once per word because we only need to know if it's present as we're trying to maximize the number of letters in a guess.
-            const letters = new Set(word.split(''))
+            const letters = WordleFilter.lettersToConsiderForScore(word, state)
+            if (letters.size === 0) {
+                // All letters are already known, it must be the answer.
+                candidate.score = 100
+                continue
+            }
+
             let score = 0
             for (const letter of letters) {
-                if (state.hints.some(hint => hint.includes(letter))) {
-                    // Skip letters that are in hints because all words will have them.
-                    continue
-                }
-                if (state.known.some((known, index) => known === letter && word[index] !== letter)) {
-                    continue
-                }
                 score += letterFrequencies.get(letter)!
             }
 
@@ -158,6 +148,23 @@ export class WordleFilter {
             // Keep it as a number instead of a string to allow for more efficient sorting.
             candidate.score = Math.round(1000 * (score / word.length)) / 10
         }
+    }
+
+    private static lettersToConsiderForScore(word: string, state: WordleState): Set<string> {
+        let lettersToConsider = ""
+        state.known.forEach((letter, position) => {
+            if (!letter) {
+                lettersToConsider += word[position]
+            }
+        })
+        const result = new Set(lettersToConsider)
+        // Just consider the letters that are not already known.
+        for (const hint of state.hints) {
+            for (const letter of hint) {
+                result.delete(letter)
+            }
+        }
+        return result
     }
 
     private static buildPattern = (state: WordleState): RegExp => {
