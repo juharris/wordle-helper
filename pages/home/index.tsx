@@ -117,7 +117,7 @@ export default function Home(): JSX.Element {
   const tryWordAgainstToday = (word: string) => {
     const solution = getTodaySolution()
     if (!solution) {
-      alert('Today\'s solution is not available in the data yet.')
+      alert("Today's solution is not available in the data yet. Try refreshing the page.")
       return
     }
 
