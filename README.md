@@ -14,7 +14,6 @@ Data sources:
 * Possible solutions:
   * https://wordsrated.com/wordle-words
   * Seen when using the app.
-  * TODO: Need more.
 
 # Development
 Built using a sample for Next.js + Jest.
