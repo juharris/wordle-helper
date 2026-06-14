@@ -9,7 +9,18 @@ import { useEffect, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import PossibleSolution from '../../components/possible-solution'
 
-const getInitialWordleState = (): WordleState => {
+function areWordsOld(): boolean {
+  const dateString = getTodayDateString()
+  return findSolution(dateString) === undefined
+}
+
+function findSolution(dateString: string): string | undefined {
+  const validWords = allValidWords as ValidWords
+  return validWords.words
+    .find(w => w.d === dateString)?.w
+}
+
+function getInitialWordleState(): WordleState {
   return {
     banned: [],
     hints: ["", "", "", "", ""],
@@ -17,18 +28,12 @@ const getInitialWordleState = (): WordleState => {
   }
 }
 
-const areWordsOld = (): boolean => {
-  // Check if the page is more than 4 days old.
-  // The words should refresh every 2 days, but we'll give it a buffer in case an update fails;
-  // otherwise, there would be a refresh loop.
-  // A more robust implementation would not refresh the entire page and just get the latest words,
-  // however, this is simpler and the format of the words might not be compatible with the page.
-  if (allValidWords.lastUpdated === undefined) {
-    return true
-  }
-  const dateResetThreshold = new Date()
-  dateResetThreshold.setDate(dateResetThreshold.getDate() - 4)
-  return new Date(allValidWords.lastUpdated) < dateResetThreshold
+function getTodayDateString(): string {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export default function Home(): JSX.Element {
@@ -83,14 +88,6 @@ export default function Home(): JSX.Element {
     }
   }
 
-  const getTodayDateString = (): string => {
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = String(today.getMonth() + 1).padStart(2, '0')
-    const day = String(today.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
-
   const getTodaySolution = (): string | null => {
     const dateString = getTodayDateString()
 
@@ -99,14 +96,14 @@ export default function Home(): JSX.Element {
       return todaySolution.word
     }
 
-    // Find today's word from the local data
-    const validWords = allValidWords as ValidWords
-    const todayWord = validWords.words.find(w => w.d === dateString)
+    const todayWord = findSolution(dateString)
 
     if (todayWord) {
-      setTodaySolution({ date: dateString, word: todayWord.w })
-      return todayWord.w
+      setTodaySolution({ date: dateString, word: todayWord })
+      return todayWord
     }
+
+    setTodaySolution(null)
 
     return null
   }
