@@ -24,7 +24,7 @@ const addUsedDates = async () => {
     // End date is a few days ahead to get data in advance.
     // We won't show recent data in the UI.
     const endDate = new Date()
-    endDate.setDate(endDate.getDate() + 5)
+    endDate.setDate(endDate.getDate() + 6)
 
     if (startDate >= endDate) {
         console.log("No new dates to fetch.")
