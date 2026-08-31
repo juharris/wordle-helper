@@ -87,7 +87,9 @@ const isValidWord = (word: string): boolean => {
  * changes the line(s) for that word instead of the whole file.
  */
 const formatWords = (words: ValidWords): string => {
-    const entries = words.words.map(word => `  ${JSON.stringify(word)}`).join(',\n')
+    const entries = words.words
+        .map(word => JSON.stringify(word))
+        .join(',\n')
     return `{"words":[\n${entries}\n],"lastUpdated":${JSON.stringify(words.lastUpdated)}}\n`
 }
 
