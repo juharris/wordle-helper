@@ -80,10 +80,23 @@ const isValidWord = (word: string): boolean => {
     return word.length === 5
 }
 
+/**
+ * Serialize `words` so that each word entry is on its own line.
+ * This keeps the file small and succinct (no full pretty-print) while making
+ * diffs easy to review, since adding, removing, or editing a word only
+ * changes the line(s) for that word instead of the whole file.
+ */
+const formatWords = (words: ValidWords): string => {
+    const entries = words.words
+        .map(word => JSON.stringify(word))
+        .join(',\n')
+    return `{"words":[\n${entries}\n],"lastUpdated":${JSON.stringify(words.lastUpdated)}}\n`
+}
+
 const saveWords = (words: ValidWords) => {
     const path = './public/words.json'
     console.log(`Saving words to '${path}'...`)
-    fs.writeFileSync(path, JSON.stringify(words))
+    fs.writeFileSync(path, formatWords(words))
     console.log(`Words saved to '${path}'.`)
 }
 
