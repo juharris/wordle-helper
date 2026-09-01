@@ -26,7 +26,7 @@
   flex-wrap: wrap;
 
   max-width: 1200px;
-  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   gap: 0.5rem;
 }
 
@@ -47,7 +47,7 @@ button.rankButton {
 }
 
 .inputsSection {
-  margin-top: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 input.wordleLetters {
@@ -57,7 +57,7 @@ input.wordleLetters {
   font-size: 1.2rem;
   letter-spacing: 0.05rem;
   border-width: 0;
-  padding: 0.4rem;
+  padding: 0.35rem;
   color: #fff;
 }
 
@@ -87,7 +87,7 @@ input.oneFifth {
 }
 
 .possibleSolutions {
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .possibleSolutionsList {

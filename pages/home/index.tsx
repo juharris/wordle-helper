@@ -314,10 +314,6 @@ export default function Home(): JSX.Element {
       </Head>
 
       <main>
-        <h1 className={styles.title}>
-          Wordle Helper
-        </h1>
-
         {areWordsOldState &&
           <div>
             ⚠️ The words are more than a few days old. Please refresh the page to get the latest words.
