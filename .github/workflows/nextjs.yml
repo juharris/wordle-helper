@@ -78,31 +78,25 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: "Update latest words"
         run: ${{ steps.detect-package-manager.outputs.manager }} run update-words
-      - name: "Push updated words.json (Sundays only)"
+      - name: "Push updated words.json (weekends only)"
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |
-          # Only push on Sundays, and only if public/words.json is the sole file changed.
-          if [ "$(date -u +%u)" -ne 7 ]; then
-            echo "Not Sunday (UTC). Skipping push."
+          # Only push on Saturday or Sunday (UTC), and only commit public/words.json.
+          day_of_week="$(date -u +%u)"
+          if [ "$day_of_week" -ne 6 ] && [ "$day_of_week" -ne 7 ]; then
+            echo "Not Saturday or Sunday (UTC). Skipping push."
             exit 0
           fi
 
-          changed_files="$(git status --porcelain | awk '{print substr($0, 4)}')"
-          if [ -z "$changed_files" ]; then
-            echo "No changes detected. Skipping push."
-            exit 0
-          fi
+          git add public/words.json
 
-          if [ "$changed_files" != "public/words.json" ]; then
-            echo "Changes are not limited to public/words.json. Skipping push."
-            echo "Changed files:"
-            echo "$changed_files"
+          if git diff --cached --quiet -- public/words.json; then
+            echo "No changes detected in public/words.json. Skipping push."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/words.json
           git commit -m "Update words.json [skip ci]"
           git push origin HEAD:main
       - name: Build with Next.js
