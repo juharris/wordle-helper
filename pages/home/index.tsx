@@ -214,6 +214,7 @@ export default function Home(): JSX.Element {
   }
 
   const knownInputs = []
+  const todayWordForPreview = findSolution(getTodayDateString())
   for (let i = 0; i < numLetters; ++i) {
     knownInputs.push(
       <input type='text' key={i}
@@ -221,7 +222,7 @@ export default function Home(): JSX.Element {
         aria-label={`Answer for letter ${i + 1}`}
         autoComplete='off'
         className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
-        value={wordleState.known[i]}
+        value={wordleState.known[i] || (guessWord[i] && guessWord[i] === todayWordForPreview?.[i] ? guessWord[i] : "")}
         onChange={(e) => {
           const { known } = wordleState
           let { value } = e.target
