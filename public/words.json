@@ -852,7 +852,7 @@
 {"w":"FURRY","s":["wordsrated"]},
 {"w":"FUSSY","s":["wordsrated"]},
 {"w":"FUZZY","s":["wordsrated"]},
-{"w":"GAFFE","s":["wordsrated"]},
+{"w":"GAFFE","s":["wordsrated"],"d":"2026-10-17"},
 {"w":"GAILY","s":["wordsrated"]},
 {"w":"GAMER","s":["wordsrated"]},
 {"w":"GAMMA","s":["wordsrated"]},
@@ -2401,4 +2401,4 @@
 {"w":"ZEBRA","s":["wordsrated"]},
 {"w":"ZESTY","s":["wordsrated"]},
 {"w":"ZONAL","s":["wordsrated"]}
-],"lastUpdated":"2026-10-10T00:04:13.106Z"}
+],"lastUpdated":"2026-10-11T23:42:31.294Z"}
