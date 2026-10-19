@@ -28,6 +28,35 @@ function getInitialWordleState(): WordleState {
   }
 }
 
+function getWordleStateAfterGuess(state: WordleState, guess: string, solution: string): WordleState {
+  const known = [...state.known]
+  const hints = [...state.hints]
+  const banned = new Set(state.banned)
+
+  // Compare the guess with the solution and merge the feedback with the existing state.
+  for (let i = 0; i < guess.length; ++i) {
+    const letter = guess[i]
+    if (letter === solution[i]) {
+      // Mark correct letter.
+      known[i] = letter
+    } else if (solution.includes(letter)) {
+      // Letter is in the word, but not at this position.
+      if (!hints[i].includes(letter)) {
+        hints[i] += letter
+      }
+    } else {
+      // Letter is not in the word at all.
+      banned.add(letter)
+    }
+  }
+
+  return {
+    known,
+    hints,
+    banned: Array.from(banned),
+  }
+}
+
 function getTodayDateString(): string {
   const today = new Date()
   const year = today.getFullYear()
@@ -115,32 +144,7 @@ export default function Home(): JSX.Element {
       return
     }
 
-    // Compare word with solution and merge with existing state
-    const newKnown: string[] = [...wordleState.known]
-    const newHints: string[] = [...wordleState.hints]
-    const bannedSet = new Set<string>(wordleState.banned)
-
-    for (let i = 0; i < 5; ++i) {
-      if (word[i] === solution[i]) {
-        // Mark correct letter.
-        newKnown[i] = word[i]
-      } else if (solution.includes(word[i])) {
-        // Letter is in the word but not at this position.
-        if (!newHints[i].includes(word[i])) {
-          newHints[i] += word[i]
-        }
-      } else {
-        // Letter is not in the word at all.
-        bannedSet.add(word[i])
-      }
-    }
-
-    const newWordleState: WordleState = {
-      known: newKnown,
-      hints: newHints,
-      banned: Array.from(bannedSet),
-    }
-
+    const newWordleState = getWordleStateAfterGuess(wordleState, word, solution)
     updateCandidates(true, newWordleState)
   }
 
@@ -161,16 +165,23 @@ export default function Home(): JSX.Element {
     setGuessWord("")
   }
 
+  const numLetters = 5
+  const hintInputs = []
+  const todayWordForPreview = findSolution(getTodayDateString())
+  const visibleWordleState = guessWord && todayWordForPreview
+    ? getWordleStateAfterGuess(wordleState, guessWord, todayWordForPreview)
+    : wordleState
+  const visibleFilterResponse = guessWord
+    ? wordleFilter.current.filter(visibleWordleState, allValidWords, enableRanking)
+    : filterResponse
   const today = WordleFilter.getTodayMidnight()
   let numUnusedSolutions = 0
-  for (const candidate of filterResponse.candidates) {
+  for (const candidate of visibleFilterResponse.candidates) {
     if (candidate.d === undefined || WordleFilter.parseLocalDate(candidate.d) >= today) {
       ++numUnusedSolutions
     }
   }
 
-  const numLetters = 5
-  const hintInputs = []
   for (let i = 0; i < numLetters; ++i) {
     hintInputs.push(
       <input type='text' key={i}
@@ -178,24 +189,25 @@ export default function Home(): JSX.Element {
         aria-label={`Hint for letter ${i + 1}`}
         autoComplete='off'
         className={`${styles.wordleLetters} ${styles.hints} ${styles.oneFifth}`}
-        value={wordleState.hints[i]}
+        value={visibleWordleState.hints[i]}
         onChange={(e) => {
-          const { hints } = wordleState
+          const hints = [...wordleState.hints]
+          const previousLength = hints[i].length
           hints[i] = e.target.value.toUpperCase()
           const newWordleState = {
             ...wordleState,
             hints,
           }
-          const isMoreRestrictive = hints[i].length > wordleState.hints[i].length
+          const isMoreRestrictive = hints[i].length > previousLength
           updateCandidates(isMoreRestrictive, newWordleState)
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Backspace' && !wordleState.hints[i]) {
+          if (e.key === 'Backspace' && !visibleWordleState.hints[i]) {
             // If backspace is pressed on an empty input, focus the previous input and delete its last character.
             const prevIndex = i - 1
             if (prevIndex >= 0) {
               e.preventDefault()
-              const { hints } = wordleState
+              const hints = [...wordleState.hints]
               hints[prevIndex] = hints[prevIndex].slice(0, -1)
               const newWordleState = {
                 ...wordleState,
@@ -221,20 +233,21 @@ export default function Home(): JSX.Element {
         aria-label={`Answer for letter ${i + 1}`}
         autoComplete='off'
         className={`${styles.wordleLetters} ${styles.known} ${styles.oneFifth}`}
-        value={wordleState.known[i]}
+        value={visibleWordleState.known[i]}
         onChange={(e) => {
-          const { known } = wordleState
+          const known = [...wordleState.known]
           let { value } = e.target
           if (value.length > 1) {
             // Get just the last letter.
             value = value.substring(value.length - 1)
           }
+          const previousLength = known[i].length
           known[i] = value.toUpperCase()
           const newWordleState = {
             ...wordleState,
             known,
           }
-          const isMoreRestrictive = value.length > wordleState.known[i].length
+          const isMoreRestrictive = value.length > previousLength
           updateCandidates(isMoreRestrictive, newWordleState)
 
           if (value) {
@@ -249,12 +262,12 @@ export default function Home(): JSX.Element {
           }
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Backspace' && !wordleState.known[i]) {
+          if (e.key === 'Backspace' && !visibleWordleState.known[i]) {
             // If backspace is pressed on an empty input, focus the previous input and delete its last character
             const prevIndex = i - 1
             if (prevIndex >= 0) {
               e.preventDefault()
-              const { known } = wordleState
+              const known = [...wordleState.known]
               known[prevIndex] = known[prevIndex].slice(0, -1)
               const newWordleState = {
                 ...wordleState,
@@ -329,7 +342,7 @@ export default function Home(): JSX.Element {
               aria-label="banned letters"
               autoComplete='off'
               className={`${styles.wordleLetters} ${styles.banned}`}
-              value={wordleState.banned.join("")}
+              value={visibleWordleState.banned.join("")}
               onChange={(e) => {
                 const prevBanned = wordleState.banned
                 const { value } = e.target
@@ -382,12 +395,12 @@ export default function Home(): JSX.Element {
           >
             {enableRanking ? "🔠" : "✨"}
           </button>
-          Possible Solutions ({filterResponse.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{filterResponse.candidates.length}):
+          Possible Solutions ({visibleFilterResponse.candidates.length > 0 ? `${numUnusedSolutions}/` : ""}{visibleFilterResponse.candidates.length}):
           <FixedSizeList
             className={styles.possibleSolutionsList}
             height={520}
-            itemCount={filterResponse.candidates.length}
-            itemData={{ candidates: filterResponse.candidates, onTryWord: tryWordAgainstToday }}
+            itemCount={visibleFilterResponse.candidates.length}
+            itemData={{ candidates: visibleFilterResponse.candidates, onTryWord: tryWordAgainstToday }}
             itemSize={25}
             width={300}
             // Ensure the list is updated when the candidates change,
