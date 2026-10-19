@@ -33,15 +33,19 @@ function getWordleStateAfterGuess(state: WordleState, guess: string, solution: s
   const hints = [...state.hints]
   const banned = new Set(state.banned)
 
+  // Compare the guess with the solution and merge the feedback with the existing state.
   for (let i = 0; i < guess.length; ++i) {
     const letter = guess[i]
     if (letter === solution[i]) {
+      // Mark correct letter.
       known[i] = letter
     } else if (solution.includes(letter)) {
+      // Letter is in the word, but not at this position.
       if (!hints[i].includes(letter)) {
         hints[i] += letter
       }
     } else {
+      // Letter is not in the word at all.
       banned.add(letter)
     }
   }
