@@ -32,32 +32,16 @@ function getWordleStateAfterGuess(state: WordleState, guess: string, solution: s
   const known = [...state.known]
   const hints = [...state.hints]
   const banned = new Set(state.banned)
-  const remainingLetters = new Map<string, number>()
-
-  for (const letter of solution) {
-    remainingLetters.set(letter, (remainingLetters.get(letter) || 0) + 1)
-  }
-
-  for (let i = 0; i < guess.length; ++i) {
-    if (guess[i] === solution[i]) {
-      known[i] = guess[i]
-      remainingLetters.set(guess[i], remainingLetters.get(guess[i])! - 1)
-    }
-  }
 
   for (let i = 0; i < guess.length; ++i) {
     const letter = guess[i]
     if (letter === solution[i]) {
-      continue
-    }
-
-    const remainingCount = remainingLetters.get(letter) || 0
-    if (remainingCount > 0) {
+      known[i] = letter
+    } else if (solution.includes(letter)) {
       if (!hints[i].includes(letter)) {
         hints[i] += letter
       }
-      remainingLetters.set(letter, remainingCount - 1)
-    } else if (!solution.includes(letter)) {
+    } else {
       banned.add(letter)
     }
   }

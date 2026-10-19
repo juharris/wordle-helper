@@ -53,4 +53,29 @@ describe("Home", () => {
       jest.useRealTimers();
     }
   });
+
+  it("shows every misplaced repeated letter in its own hint position", () => {
+    const answer = allValidWords.words.find(word => word.w === "STINK" && word.d);
+    if (!answer?.d) {
+      throw new Error("Expected STINK to have a solution date in words.json.");
+    }
+
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(`${answer.d}T12:00:00`));
+    try {
+      render(<Home />);
+      fireEvent.change(screen.getByRole("textbox", { name: "Guess word" }), {
+        target: { value: "STTTT" },
+      });
+
+      expect(screen.getByRole("textbox", { name: "Answer for letter 1" })).toHaveValue("S");
+      expect(screen.getByRole("textbox", { name: "Answer for letter 2" })).toHaveValue("T");
+      expect(screen.getByRole("textbox", { name: "Hint for letter 3" })).toHaveValue("T");
+      expect(screen.getByRole("textbox", { name: "Hint for letter 4" })).toHaveValue("T");
+      expect(screen.getByRole("textbox", { name: "Hint for letter 5" })).toHaveValue("T");
+      expect(screen.getByRole("textbox", { name: "banned letters" })).toHaveValue("");
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
