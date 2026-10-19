@@ -177,14 +177,6 @@ export default function Home(): JSX.Element {
     setGuessWord("")
   }
 
-  const today = WordleFilter.getTodayMidnight()
-  let numUnusedSolutions = 0
-  for (const candidate of filterResponse.candidates) {
-    if (candidate.d === undefined || WordleFilter.parseLocalDate(candidate.d) >= today) {
-      ++numUnusedSolutions
-    }
-  }
-
   const numLetters = 5
   const hintInputs = []
   const todayWordForPreview = findSolution(getTodayDateString())
@@ -194,6 +186,13 @@ export default function Home(): JSX.Element {
   const visibleFilterResponse = guessWord
     ? wordleFilter.current.filter(visibleWordleState, allValidWords, enableRanking)
     : filterResponse
+  const today = WordleFilter.getTodayMidnight()
+  let numUnusedSolutions = 0
+  for (const candidate of visibleFilterResponse.candidates) {
+    if (candidate.d === undefined || WordleFilter.parseLocalDate(candidate.d) >= today) {
+      ++numUnusedSolutions
+    }
+  }
 
   for (let i = 0; i < numLetters; ++i) {
     hintInputs.push(

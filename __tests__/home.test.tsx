@@ -16,7 +16,7 @@ describe("Home", () => {
     expect(possibleSolutions).toBeInTheDocument();
   });
 
-  it("fills in a correct-position letter while typing a guess", () => {
+  it("shows full Wordle feedback while typing a guess and clears the preview", () => {
     const answer = allValidWords.words.find(word => word.d);
     if (!answer?.d) {
       throw new Error("Expected a dated answer in words.json.");
@@ -26,15 +26,29 @@ describe("Home", () => {
     jest.setSystemTime(new Date(`${answer.d}T12:00:00`));
     try {
       render(<Home />);
-      fireEvent.change(screen.getByRole("textbox", { name: "Guess word" }), {
-        target: { value: answer.w[0] },
-      });
+      const guessInput = screen.getByRole("textbox", { name: "Guess word" });
+      const outsideLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").find(letter => !answer.w.includes(letter));
+      const misplacedIndex = answer.w.split("").findIndex(letter => letter !== answer.w[0]);
+      if (!outsideLetter || misplacedIndex < 0) {
+        throw new Error("Expected the answer to contain distinct letters and leave at least one unused letter.");
+      }
 
-      expect(screen.getByRole("textbox", { name: "Answer for letter 1" })).toHaveValue(answer.w[0]);
-      fireEvent.change(screen.getByRole("textbox", { name: "Guess word" }), {
-        target: { value: "" },
-      });
+      const mixedGuess = Array(5).fill(outsideLetter);
+      mixedGuess[0] = answer.w[misplacedIndex];
+      fireEvent.change(guessInput, { target: { value: mixedGuess.join("") } });
+
       expect(screen.getByRole("textbox", { name: "Answer for letter 1" })).toHaveValue("");
+      expect(screen.getByRole("textbox", { name: "Hint for letter 1" })).toHaveValue(answer.w[misplacedIndex]);
+      expect(screen.getByRole("textbox", { name: "banned letters" })).toHaveValue(outsideLetter);
+
+      fireEvent.change(guessInput, { target: { value: answer.w } });
+      expect(screen.getByRole("textbox", { name: "Answer for letter 1" })).toHaveValue(answer.w[0]);
+      expect(screen.getByRole("textbox", { name: "Answer for letter 5" })).toHaveValue(answer.w[4]);
+
+      fireEvent.change(guessInput, { target: { value: "" } });
+      expect(screen.getByRole("textbox", { name: "Answer for letter 1" })).toHaveValue("");
+      expect(screen.getByRole("textbox", { name: "Hint for letter 1" })).toHaveValue("");
+      expect(screen.getByRole("textbox", { name: "banned letters" })).toHaveValue("");
     } finally {
       jest.useRealTimers();
     }
