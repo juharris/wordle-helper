@@ -1521,6 +1521,7 @@
 {"w":"POUTY","s":["wordsrated"]},
 {"w":"POWER","s":["wordsrated"]},
 {"w":"PRANK","s":["wordsrated"]},
+{"w":"PRATE","s":["nyt"],"d":"2026-11-07"},
 {"w":"PRAWN","s":["wordsrated"],"d":"2026-08-22"},
 {"w":"PREEN","s":["wordsrated"]},
 {"w":"PRESS","s":["wordsrated"]},
@@ -2408,4 +2409,4 @@
 {"w":"ZEBRA","s":["wordsrated"]},
 {"w":"ZESTY","s":["wordsrated"]},
 {"w":"ZONAL","s":["wordsrated"]}
-],"lastUpdated":"2026-10-31T20:20:39.214Z"}
+],"lastUpdated":"2026-11-01T20:20:47.884Z"}
